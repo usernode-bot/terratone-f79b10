@@ -100,7 +100,11 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+let shuttingDown = false;
+app.get('/health', (_req, res) => {
+  if (shuttingDown) return res.status(503).json({ status: 'shutting_down' });
+  res.json({ status: 'ok' });
+});
 
 // The template ships no favicon file; index.html carries an inline SVG
 // icon instead. Answer 204 here so anything that still probes
@@ -109,31 +113,73 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 // fresh load.
 app.get('/favicon.ico', (_req, res) => res.status(204).end());
 
-// Button press
-app.post('/api/press', async (req, res) => {
-  try {
-    await pool.query(`
-      INSERT INTO presses (user_id, username) VALUES ($1, $2)
-    `, [req.user.id, req.user.username]);
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// ---- AI lyrics (platform LLM proxy) ----------------------------------------
+// Production containers get USERNODE_LLM_PROXY_URL/TOKEN; staging previews
+// and standalone runs do not, so the frontend falls back to its local
+// template generator when this answers 503 llm_unavailable.
+const LLM_ENABLED = !!(process.env.USERNODE_LLM_PROXY_URL && process.env.USERNODE_LLM_PROXY_TOKEN);
+const LLM_MODEL = 'claude-opus-5-5';
 
-// Leaderboard
-app.get('/api/leaderboard', async (_req, res) => {
+const LYRICS_SYSTEM = [
+  'You write song lyric drafts for "Musik Dunia", a music maker for all ages.',
+  'Write polite, meaningful lyrics that respect every culture. Avoid stereotypes, caricatures, sacred or ritual texts, and claims you are unsure of.',
+  'Never write sexual, suggestive or mature-themed content, violence or weapons, drugs or alcohol, or gambling. If the requested theme touches any of these, write a neutral, gentle song about friendship or nature instead.',
+  'Write in the requested lyric language. If you are not confident in a regional language, still write your best simple attempt using common everyday words; a native speaker will review it.',
+  'For every lyric line, give a translation into the requested translation language.',
+  'Reply with JSON only, no prose and no code fences, shaped exactly as {"lines":[{"text":"...","translation":"..."}]}.',
+].join(' ');
+
+function clip(v, n) { return String(v == null ? '' : v).slice(0, n); }
+
+app.get('/api/ai-status', (_req, res) => res.json({ enabled: LLM_ENABLED }));
+
+app.post('/api/lyrics', async (req, res) => {
+  if (!LLM_ENABLED) return res.status(503).json({ code: 'llm_unavailable' });
+  const b = req.body || {};
+  const count = Math.max(4, Math.min(24, parseInt(b.lines, 10) || 12));
+  const prompt = [
+    'Song title: ' + clip(b.title, 120),
+    'Theme: ' + clip(b.theme, 300),
+    'Mood: ' + clip(b.mood, 60),
+    'Musical style: ' + clip(b.style, 120),
+    'Lyric language: ' + clip(b.langName, 60),
+    'Translation language: ' + clip(b.translationLang, 60),
+    'Number of lines: ' + count + ' (verse, chorus, verse; keep lines short and singable, 4 to 9 words).',
+  ].join('\n');
   try {
-    const { rows } = await pool.query(`
-      SELECT username, COUNT(*) as presses
-      FROM presses
-      GROUP BY username
-      ORDER BY presses DESC
-      LIMIT 50
-    `);
-    res.json({ leaderboard: rows });
+    const resp = await fetch(process.env.USERNODE_LLM_PROXY_URL + '/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'anthropic-version': '2023-06-01',
+        'x-usernode-app-token': process.env.USERNODE_LLM_PROXY_TOKEN,
+        'x-usernode-user-token': req.headers['x-usernode-token'] || req.query.token || '',
+      },
+      body: JSON.stringify({
+        model: LLM_MODEL,
+        max_tokens: 4000,
+        output_config: { effort: 'low' },
+        system: LYRICS_SYSTEM,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      return res.status(resp.status).json({ code: data.code || 'upstream_error', error: data.error && (data.error.message || data.error) });
+    }
+    if (data.stop_reason === 'refusal') return res.status(422).json({ code: 'refused' });
+    const text = (data.content || []).filter((c) => c.type === 'text').map((c) => c.text).join('');
+    const m = text.match(/\{[\s\S]*\}/);
+    let parsed = null;
+    try { parsed = m ? JSON.parse(m[0]) : null; } catch { parsed = null; }
+    const lines = parsed && Array.isArray(parsed.lines)
+      ? parsed.lines.slice(0, 40).map((l) => ({ text: clip(l.text, 200), translation: clip(l.translation, 200) }))
+      : null;
+    if (!lines || !lines.length) return res.status(502).json({ code: 'bad_output' });
+    res.json({ lines, source: 'ai' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.warn('lyrics proxy failed: ' + err.message);
+    res.status(502).json({ code: 'upstream_error' });
   }
 });
 
@@ -174,18 +220,36 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-async function start() {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS presses (
-      id SERIAL PRIMARY KEY,
-      user_id INTEGER NOT NULL,
-      username VARCHAR(255) NOT NULL,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )
-  `);
-  const server = app.listen(port, () => console.log(`Listening on :${port}`));
+const DRAIN_MS = 3000;
+let server = null;
+
+async function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`[shutdown] ${signal} received, draining`);
+  if (server) {
+    server.close(() => {});
+    server.closeIdleConnections?.();
+    const t = setTimeout(() => server.closeAllConnections?.(), DRAIN_MS);
+    t.unref?.();
+  }
+  try {
+    await pool.end();
+  } catch (e) {
+    console.error('[shutdown] pool.end failed', e.message);
+  }
+  process.exit(0);
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
+// Musik Dunia keeps projects in the browser (no tables yet), so there is no
+// schema to apply on boot.
+function start() {
+  server = app.listen(port, () => console.log(`Listening on :${port}`));
   // Let Envoy retire idle upstream connections at 60s, with a 15s margin.
   server.keepAliveTimeout = 75_000;
 }
 
-start().catch(err => { console.error(err); process.exit(1); });
+start();

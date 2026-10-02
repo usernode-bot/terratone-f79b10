@@ -58,26 +58,6 @@ this check for you and tells you when you are behind. It is silent offline, so
 its silence is not proof the checkout is current. Inside Homeroom's dev-chat
 the platform fixes the base commit, and none of this applies.
 
-## Starter template
-
-The screen this app currently ships — the hero, the "What's already
-working" card, and the Press! example (the demo markup in
-`public/index.html`, the `/api/press` and `/api/leaderboard` routes, and
-the `presses` table bootstrap in `server.js`) — is placeholder content
-from the Homeroom starter template, not product intent.
-
-When the user asks for their first real feature, REPLACE the template
-screen rather than building alongside it:
-
-- remove the `usernode-starter-notice@1` block in `public/index.html`
-  (both sentinel comments and everything between them),
-- remove or repurpose the "Try the example" card, its demo endpoints and
-  the `presses` table as appropriate,
-- rewrite `README.md` to describe the actual app.
-
-Keep the `usernode-dev-console@1` forwarder `<script>` when rewriting the
-HTML — that block is platform infrastructure, not template content.
-
 If a rule below this line conflicts with the hosted conventions, the
 hosted conventions win. This file is **app-specific** — write down
 things about *this* app that belong in the repo: product intent,
@@ -86,15 +66,24 @@ tables you've marked private), etc.
 
 ---
 
-## About TerraTone
+## About Musik Dunia
 
-Transform your photos with earthy, natural color grading filters
-
-_(add a sentence or two more of product context here so Claude Code has a
-shared understanding of what this app is for)_
+A mobile-first music maker for every genre, from pop and reggae to regional
+and indigenous styles from around the world, helped by AI. The UI is
+Indonesian first with an English toggle. (The repo was scaffolded as
+"TerraTone"; `dapp.json` now names the app Musik Dunia.)
 
 ## App-specific conventions
 
-_(optional — e.g. "all currency values stored as integer cents, not
-floats"; "the `posts` table is append-only"; "avoid adding new
-dependencies"; etc.)_
+- The whole frontend lives in one file, `public/index.html`, by request.
+- All sound is synthesised with the Web Audio API; never add audio files.
+- Styles, scales, tunings, drum voices, instruments and templates are plain
+  config objects (`GENRES`, `SCALES`, `TUNINGS`, `DRUMS`, `INSTR`,
+  `TEMPLATES`). Add a style by adding one object, not by changing the engine.
+- Every traditional style needs: region, instruments, scale/tuning, rhythm,
+  example uses, a short cultural note, and must show "Variasi antardaerah
+  banyak, periksa dengan pelaku budaya setempat." Avoid uncertain claims and
+  stereotypes; say "pendekatan" where a sound is only approximated.
+- Projects are stored in the browser (`localStorage`); there are no tables.
+- AI lyrics go through `POST /api/lyrics` (platform LLM proxy). Staging has no
+  proxy, so the frontend falls back to the template generator.
