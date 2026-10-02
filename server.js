@@ -7,6 +7,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
+const IS_STAGING = process.env.USERNODE_ENV === 'staging';
+
+// Filter keys the API accepts, duplicated server-side so a client that
+// sends an unknown key gets a clear rejection instead of a row the
+// gallery later renders unfiltered by surprise.
+const FILTER_KEYS = new Set(['original', 'terracotta', 'olive', 'sand', 'sage', 'clay']);
+
 // The platform signs user-identity tokens with an RSA private key it never
 // shares. Containers get only the PUBLIC half, so this app can verify who a
 // user is but cannot mint an identity — and neither can any other app.
@@ -100,7 +107,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+let shuttingDown = false;
+
+app.get('/health', (req, res) => {
+  // Anything polling readiness sees the container leaving rotation as a
+  // 503 rather than a connection reset mid-drain.
+  if (shuttingDown) return res.status(503).json({ status: 'shutting down' });
+  res.json({ status: 'ok' });
+});
 
 // The template ships no favicon file; index.html carries an inline SVG
 // icon instead. Answer 204 here so anything that still probes
@@ -109,29 +123,40 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 // fresh load.
 app.get('/favicon.ico', (_req, res) => res.status(204).end());
 
-// Button press
-app.post('/api/press', async (req, res) => {
+// Save a graded photo. The file itself lives in the platform's storage;
+// only its URL is persisted here, next to the filter key needed to
+// re-apply the grading in the browser.
+app.post('/api/photos', async (req, res) => {
   try {
-    await pool.query(`
-      INSERT INTO presses (user_id, username) VALUES ($1, $2)
-    `, [req.user.id, req.user.username]);
-    res.json({ ok: true });
+    const { file_url, filter } = req.body || {};
+    if (typeof file_url !== 'string' || !file_url.startsWith('https://')) {
+      return res.status(400).json({ error: 'A saved photo needs a valid file URL.' });
+    }
+    if (typeof filter !== 'string' || !FILTER_KEYS.has(filter)) {
+      return res.status(400).json({ error: 'Unknown filter.' });
+    }
+    const { rows } = await pool.query(
+      `INSERT INTO photos (user_id, username, file_url, filter)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, user_id, username, file_url, filter, created_at`,
+      [req.user.id, req.user.username, file_url, filter]
+    );
+    res.json(rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Leaderboard
-app.get('/api/leaderboard', async (_req, res) => {
+// The caller's own photos, newest first. The table is personal: a user
+// never sees another user's rows.
+app.get('/api/photos', async (req, res) => {
   try {
-    const { rows } = await pool.query(`
-      SELECT username, COUNT(*) as presses
-      FROM presses
-      GROUP BY username
-      ORDER BY presses DESC
-      LIMIT 50
-    `);
-    res.json({ leaderboard: rows });
+    const { rows } = await pool.query(
+      `SELECT id, user_id, username, file_url, filter, created_at
+       FROM photos WHERE user_id = $1 ORDER BY created_at DESC`,
+      [req.user.id]
+    );
+    res.json({ photos: rows });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -153,7 +178,6 @@ app.get('*', (req, res) => {
     // path+query into the chromeless view so share links land on the
     // shared screen, not Home. The clean platform route stores `path`
     // as one encoded query value so an inner ?, &, or = survives. The
-    // shell decodes and validates it as relative-only before use. The
     // character test keeps the
     // value attribute-safe for the landing anchor below — anything
     // unusual falls back to the bare link.
@@ -176,16 +200,58 @@ app.get('*', (req, res) => {
 
 async function start() {
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS presses (
+    CREATE TABLE IF NOT EXISTS photos (
       id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL,
       username VARCHAR(255) NOT NULL,
+      file_url TEXT NOT NULL,
+      filter VARCHAR(32) NOT NULL,
       created_at TIMESTAMPTZ DEFAULT NOW()
     )
   `);
+  // Photo rows are personal user content: staging copies the schema
+  // without the rows, so the gallery would be blank there. Seed a few
+  // obviously fake rows owned by a fake identity, with data URIs rather
+  // than real /app-files/ URLs because platform-stored files are not
+  // cloned into staging.
+  await pool.query(`COMMENT ON TABLE photos IS 'staging:private'`);
+  if (IS_STAGING) {
+    await pool.query(
+      `INSERT INTO photos (id, user_id, username, file_url, filter)
+       VALUES ($1, $2, $3, $4, $5), ($6, $2, $3, $7, $8)
+       ON CONFLICT (id) DO NOTHING`,
+      [
+        900001, 900001, 'staging-demo-user',
+        'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22600%22 height=%22400%22%3E%3Crect width=%22600%22 height=%22400%22 fill=%22%23a16207%22/%3E%3Ccircle cx=%22300%22 cy=%22200%22 r=%22120%22 fill=%22%23d97706%22/%3E%3Ctext x=%22300%22 y=%22350%22 text-anchor=%22middle%22 font-family=%22system-ui%22 font-size=%2230%22 fill=%22white%22%3EStaging%20demo%3C/text%3E%3C/svg%3E',
+        'terracotta',
+        900002,
+        'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22600%22 height=%22400%22%3E%3Crect width=%22600%22 height=%22400%22 fill=%22%233f6212%22/%3E%3Crect x=%22180%22 y=%22140%22 width=%22240%22 height=%22120%22 fill=%22%2365a30d%22/%3E%3Ctext x=%22300%22 y=%22350%22 text-anchor=%22middle%22 font-family=%22system-ui%22 font-size=%2230%22 fill=%22white%22%3EStaging%20demo%3C/text%3E%3C/svg%3E',
+        'sage',
+      ]
+    );
+  }
   const server = app.listen(port, () => console.log(`Listening on :${port}`));
   // Let Envoy retire idle upstream connections at 60s, with a 15s margin.
   server.keepAliveTimeout = 75_000;
+
+  const DRAIN_MS = 3000;
+  async function shutdown(signal) {
+    if (shuttingDown) return; // idempotent: SIGTERM then SIGINT must not double-run
+    shuttingDown = true;
+    console.log(`[shutdown] ${signal} received, draining`);
+    server.close(() => {}); // stop accepting new connections
+    server.closeIdleConnections?.(); // drop idle keep-alives immediately
+    const t = setTimeout(() => server.closeAllConnections?.(), DRAIN_MS);
+    t.unref?.(); // never hold the process open on this timer
+    try {
+      await pool.end(); // finish/close DB work cleanly
+    } catch (e) {
+      console.error('[shutdown] pool.end failed', e.message);
+    }
+    process.exit(0);
+  }
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
 start().catch(err => { console.error(err); process.exit(1); });

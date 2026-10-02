@@ -1,4 +1,18 @@
 {
   "description": "Transform your photos with earthy, natural color grading filters",
-  "secrets": []
+  "secrets": [],
+  "tests": [
+    {
+      "id": "home.default",
+      "name": "TerraTone screen renders",
+      "path": "/",
+      "expectText": "My photos",
+      "visual": true,
+      "impact": [
+        "public/index.html",
+        "server.js",
+        "dapp.json"
+      ]
+    }
+  ]
 }

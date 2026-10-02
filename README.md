@@ -1,27 +1,33 @@
 # TerraTone
 
-> **Starter template** — this repo was scaffolded by Homeroom Social
-> Vibecoding. Everything in it is placeholder example code until the
-> app's first real feature is built.
+Transform your photos with earthy, natural color grading filters. Choose a
+photo, tap a filter to preview it instantly, and save the graded result to
+your personal gallery. The grading is applied in the browser with CSS, so
+what you preview is exactly what gets saved.
 
-The scaffold is a small working demo that proves the plumbing works:
+## Features
 
-- **Sign-in** — the server verifies the platform-issued user token
-  (an RS256 JWT) on every request, so the app already knows who is
-  using it. No accounts to build.
-- **Database** — the app has its own private Postgres database; the
-  demo stores button presses in a `presses` table.
-- **Live API** — two example routes (`/api/press`,
-  `/api/leaderboard`) read and write through a real Express server.
-- **Styling** — Tailwind CSS, precompiled by `npm run build` during
-  image creation with either Kubernetes/Paketo or standalone Docker.
+- **Add a photo** from your device. Very large camera photos are shrunk in
+  the browser before upload, and the platform's file storage keeps the
+  image; the database stores only its URL.
+- **Six filter presets**: Original, Terracotta, Olive, Sand, Sage and Clay.
+  Tapping one re-grades the preview instantly.
+- **My photos** gallery, newest first. Each entry re-applies its saved
+  filter in the browser, so a graded photo always displays correctly.
+- Photos are personal: you only ever see your own saved photos.
 
-## Replacing the template
+## Stack
 
-Open the app on Homeroom, tap the Homeroom icon in the header, choose
-**Start a new change**, and describe the app you want in plain English.
-The template will be replaced with your real app. You can also run
-Claude Code against this repo directly; start with `CLAUDE.md`, which
-carries the app-specific notes and points at the platform rules.
+- Express server (`server.js`) with the platform's JWT auth middleware
+  gating everything under `/api/`.
+- Postgres for photo records (`photos` table; private to staging).
+- Precompiled Tailwind CSS: `npm run build` regenerates `public/tailwind.css`
+  from the markup on every image build.
+- Platform file storage via the bridge's `usernode.uploadFile()`, with
+  client-side canvas downscaling for oversized photos.
 
-Once the real app exists, rewrite this README to describe it.
+## Staging note
+
+On staging previews the gallery is seeded with a couple of obviously fake
+"Staging demo" placeholder photos so the screen is never empty for testers.
+Real users' production data is untouched.
