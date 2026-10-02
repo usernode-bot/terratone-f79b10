@@ -1,27 +1,33 @@
-# TerraTone
+# Musik Dunia
 
-> **Starter template** — this repo was scaffolded by Homeroom Social
-> Vibecoding. Everything in it is placeholder example code until the
-> app's first real feature is built.
+Pembuat musik semua genre di peramban, dari pop dan reggae sampai musik
+daerah dan suku di seluruh dunia, dibantu AI. Antarmuka berbahasa Indonesia
+dengan pilihan bahasa Inggris, mobile-first, mode terang dan gelap.
 
-The scaffold is a small working demo that proves the plumbing works:
+Semua suara disintesis dengan Web Audio API (tanpa berkas audio). Alat
+musik tradisional hanya pendekatan sintesis, bukan rekaman alat aslinya.
 
-- **Sign-in** — the server verifies the platform-issued user token
-  (an RS256 JWT) on every request, so the app already knows who is
-  using it. No accounts to build.
-- **Database** — the app has its own private Postgres database; the
-  demo stores button presses in a `presses` table.
-- **Live API** — two example routes (`/api/press`,
-  `/api/leaderboard`) read and write through a real Express server.
-- **Styling** — Tailwind CSS, precompiled by `npm run build` during
-  image creation with either Kubernetes/Paketo or standalone Docker.
+## Alur
 
-## Replacing the template
+1. **Ide**: judul, tema, suasana, tempo (50 sampai 220 BPM), durasi, "Beri Saya Ide".
+2. **Gaya**: pustaka 79 gaya (modern, tradisional, perpaduan) dengan pencarian,
+   filter benua dan jenis, serta campuran dua gaya lewat penggeser.
+3. **Lirik**: "Tulis Lirik" lewat proksi LLM platform (dengan cadangan generator
+   templat), terjemahan berdampingan, sunting per baris, cocokkan ke melodi.
+4. **Musik**: susun otomatis, variasikan, campur gaya, ganti suasana,
+   transpose, undo/redo; editor drum 16 langkah, piano roll, akor, penyetelan
+   mikrotonal (sen), keyboard virtual dengan rekam, dan kontrol instrumen.
+5. **Putar & ekspor**: karaoke, vokal panduan (Web Speech), mixer per trek
+   dengan efek, limiter master, ekspor WAV, WebM, MIDI, JSON, dan teks lirik.
 
-Open the app on Homeroom, tap the Homeroom icon in the header, choose
-**Start a new change**, and describe the app you want in plain English.
-The template will be replaced with your real app. You can also run
-Claude Code against this repo directly; start with `CLAUDE.md`, which
-carries the app-specific notes and points at the platform rules.
+## Struktur
 
-Once the real app exists, rewrite this README to describe it.
+- `public/index.html`: seluruh aplikasi dalam satu berkas. Data gaya
+  (`GENRES`), tangga nada (`SCALES`), penyetelan (`TUNINGS`), suara perkusi
+  (`DRUMS`), instrumen (`INSTR`), dan templat (`TEMPLATES`) adalah objek
+  konfigurasi biasa, jadi gaya baru cukup ditambahkan sebagai satu objek.
+- `server.js`: Express, verifikasi token platform, `GET /api/ai-status` dan
+  `POST /api/lyrics` (proksi LLM platform; tidak tersedia di staging).
+- Proyek disimpan di penyimpanan peramban (`localStorage`), tanpa backend.
+  Bentuk proyek (style, scale, tuning, tracks, patterns, notes, lyrics, mixer)
+  sudah rapi untuk dipindahkan ke database nanti.

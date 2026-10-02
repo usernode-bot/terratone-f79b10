@@ -1,4 +1,31 @@
 {
-  "description": "Transform your photos with earthy, natural color grading filters",
-  "secrets": []
+  "name": "Musik Dunia",
+  "description": "Buat musik semua genre, dari pop sampai musik daerah dunia, dibantu AI",
+  "icon": { "emoji": "🎶" },
+  "llm": {
+    "purpose": "Menulis draf lirik lagu sesuai tema, suasana, dan bahasa pilihanmu",
+    "suggested_daily_cap_cents": 50
+  },
+  "secrets": [],
+  "tests": [
+    {
+      "id": "home.templates",
+      "name": "Beranda menampilkan templat siap putar",
+      "path": "/",
+      "expectSelector": "#templateGrid [data-a=\"useTemplate\"][data-v=\"t-reggaegamelan\"]",
+      "expectText": "Templat siap putar",
+      "visual": true,
+      "impact": ["public/index.html"]
+    },
+    {
+      "name": "Halaman Belajar memuat istilah dan daftar budaya",
+      "path": "/#belajar",
+      "expectText": "Tentang budaya"
+    },
+    {
+      "name": "Halaman Tentang Budaya Bugis & Makassar",
+      "path": "/#budaya/bugis",
+      "expectText": "Variasi antardaerah banyak, periksa dengan pelaku budaya setempat."
+    }
+  ]
 }
