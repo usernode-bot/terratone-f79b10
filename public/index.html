@@ -273,6 +273,7 @@
         <span class="nm"><span data-i="appName">Musik Dunia</span><small id="projName"></small></span>
       </button>
       <button class="btn sm ghost" data-a="go" data-v="belajar" id="btnLearn">Belajar</button>
+      <button class="btn sm ghost" data-a="go" data-v="masukan" id="btnFeedback"><span data-i="navMasukan">Masukan</span></button>
       <button class="btn sm" data-a="lang" id="btnLang" aria-label="Bahasa">EN</button>
       <button class="btn sm icon" data-a="theme" id="btnTheme" aria-label="Tema"></button>
     </div>
@@ -405,6 +406,17 @@ const DICT = {
   notFound: ['Halaman tidak ditemukan.', 'Page not found.'], useStyle: ['Pakai gaya ini', 'Use this style'],
   variationNote: ['Variasi antardaerah banyak, periksa dengan pelaku budaya setempat.', 'There is a lot of regional variation; check with local culture bearers.'],
   communityNote: ['Bila memakai gaya ini untuk karya yang dibagikan, libatkan musisi dan komunitas setempat, sebutkan asalnya, dan hormati lagu atau alat yang bersifat sakral.', 'If you use this style in work you share, involve local musicians and communities, credit its origin, and respect songs or instruments that are sacred.'],
+  navMasukan: ['Masukan', 'Feedback'],
+  fbTitle: ['Masukan', 'Feedback'],
+  fbIntro: ['Sampaikan saran, laporan bug, atau ide fitur untuk Musik Dunia. Pesanmu langsung dibaca tim aplikasi.', 'Send a suggestion, bug report or feature idea for Musik Dunia. The app team reads your message directly.'],
+  fbCat: ['Kategori', 'Category'],
+  fbCatSaran: ['Saran', 'Suggestion'], fbCatBug: ['Laporan bug', 'Bug report'], fbCatIde: ['Ide fitur', 'Feature idea'],
+  fbMsg: ['Pesan', 'Message'], fbMsgPh: ['Ceritakan saran, bug, atau ide fiturmu…', 'Tell us your suggestion, bug, or feature idea…'],
+  fbSend: ['Kirim', 'Send'], fbSending: ['Mengirim…', 'Sending…'],
+  fbOk: ['Masukan terkirim. Terima kasih!', 'Feedback sent. Thank you!'], fbAgain: ['Kirim lagi', 'Send again'],
+  fbEmpty: ['Tulis pesan dulu.', 'Write a message first.'],
+  fbRate: ['Tunggu sebentar sebelum mengirim lagi.', 'Wait a moment before sending again.'],
+  fbFail: ['Gagal mengirim. Coba lagi.', 'Sending failed. Try again.'],
 };
 function t(k, vars) {
   const e = DICT[k];
@@ -1646,6 +1658,8 @@ const S = {
   editPat: 'A', pickFor: 'a', q: '', fc: 'all', ft: 'all', ideas: [],
   aiEnabled: null, guideVoice: false, recording: false, kbOct: 4, kbTrack: 'melody', chordSel: 0,
   loopSong: false, busy: false,
+  // Masukan (feedback) form: session-only, never written to localStorage.
+  fb: { cat: 'saran', msg: '', state: 'form', err: '' },
 };
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const L = pair => Array.isArray(pair) ? (S.lang === 'en' ? (pair[1] != null ? pair[1] : pair[0]) : pair[0]) : (pair || '');
@@ -1988,6 +2002,24 @@ VIEWS.belajar = () => `<h1>${esc(t('learnTitle'))}</h1>
   <div class="panel"><h2 style="margin-top:0">${esc(t('glossary'))}</h2><div class="list">${Object.keys(GLOSS).map(k => `<div class="li" style="display:block"><b>${esc(L(GLOSS[k])[0])}</b><div class="small mut">${esc(L(GLOSS[k])[1])}</div></div>`).join('')}</div></div>
   <div class="panel"><h2 style="margin-top:0">${esc(t('cultureList'))}</h2><p class="small mut">${esc(t('cultureListHint'))}</p>
     <div class="chips" style="flex-wrap:wrap">${GENRES.filter(g => g.ty !== 'modern').map(g => `<button class="chip" data-a="culture" data-v="${g.id}">${g.ic} ${esc(L(g.n))}</button>`).join('')}</div></div>`;
+
+VIEWS.masukan = () => {
+  const fb = S.fb;
+  if (fb.state === 'ok') return `<h1>${esc(t('fbTitle'))}</h1>
+  <p class="small mut">${esc(t('fbIntro'))}</p>
+  <div class="panel col">
+    <div class="note-box">${esc(t('fbOk'))}</div>
+    <div class="row" style="margin-top:12px"><button class="btn pri" data-a="fbAgain">${esc(t('fbAgain'))}</button></div>
+  </div>`;
+  return `<h1>${esc(t('fbTitle'))}</h1>
+  <p class="small mut">${esc(t('fbIntro'))}</p>
+  <div class="panel col">
+    <label class="f">${esc(t('fbCat'))}<select class="inp" data-f="fbCat">${[['saran', 'fbCatSaran'], ['bug', 'fbCatBug'], ['ide', 'fbCatIde']].map(c => opt(c[0], t(c[1]), fb.cat)).join('')}</select></label>
+    <label class="f">${esc(t('fbMsg'))}<textarea class="inp" data-f="fbMsg" maxlength="2000" placeholder="${esc(t('fbMsgPh'))}">${esc(fb.msg)}</textarea></label>
+    ${fb.state === 'err' ? `<div class="note-box">${esc(t(fb.err))}</div>` : ''}
+    <div class="row" style="margin-top:4px"><button class="btn pri" data-a="sendFeedback" id="fbSend"${fb.state === 'sending' ? ' disabled' : ''}>${esc(fb.state === 'sending' ? t('fbSending') : t('fbSend'))}</button></div>
+  </div>`;
+};
 
 VIEWS.budaya = () => {
   const g = GMAP[S.arg]; if (!g) return `<div class="empty"><p>${esc(t('notFound'))}</p><button class="btn" data-a="go" data-v="belajar">${esc(t('back'))}</button></div>`;
@@ -2694,6 +2726,22 @@ const ACT = {
   exportJson: () => { download(projectBlob(S.proj), fileBase(S.proj) + '.musikdunia.json'); toast(t('jsonDone')); },
   exportLyrics: () => { download(new Blob([lyricsText(S.proj)], { type: 'text/plain;charset=utf-8' }), fileBase(S.proj) + '-lirik.txt'); toast(t('lyricsExported')); },
   shareFile: () => shareFile(),
+  sendFeedback: async () => {
+    const fb = S.fb;
+    const msg = fb.msg.trim();
+    if (!msg) { fb.state = 'err'; fb.err = 'fbEmpty'; render(); return; }
+    fb.state = 'sending'; render();
+    try {
+      const r = await apiFetch('/api/feedback', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ category: fb.cat, message: msg }) });
+      if (r.status === 201) { fb.state = 'ok'; fb.msg = ''; fb.err = ''; toast(t('fbOk')); render(); return; }
+      fb.state = 'err';
+      const j = await r.json().catch(() => ({}));
+      // Stored as a dictionary key so the message re-translates on the EN toggle.
+      fb.err = r.status === 429 && j.code === 'rate_limited' ? 'fbRate' : 'fbFail';
+    } catch (e) { fb.state = 'err'; fb.err = 'fbFail'; }
+    render();
+  },
+  fbAgain: () => { S.fb = { cat: 'saran', msg: '', state: 'form', err: '' }; render(); },
 };
 function rollAfterScroll() { const r = document.getElementById('roll'); if (r) { delete r.dataset.scrolled; } rollAfter(); }
 function editChord(fn) {
@@ -2711,7 +2759,9 @@ function field(el, ev) {
   const outEl = el.parentElement && el.parentElement.querySelector('output');
   const live = (fn) => { if (!p) return; fn(p); touched({ render: false }); };
   if (f === 'q') { S.q = val; document.getElementById('genreGrid').innerHTML = genreCards(); return; }
-  if (!p && !['snap'].includes(f)) return;
+  if (!p && !['snap', 'fbCat', 'fbMsg'].includes(f)) return;
+  if (f === 'fbCat') { S.fb.cat = val; return; }
+  if (f === 'fbMsg') { S.fb.msg = val; return; }
   switch (f) {
     case 'title': return live(pp => { pp.title = val; if (!pp.nameEdited) { pp.name = val || t('untitled'); document.getElementById('projName').textContent = pp.name; } });
     case 'theme': return live(pp => pp.theme = val);

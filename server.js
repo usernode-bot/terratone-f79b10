@@ -183,6 +183,38 @@ app.post('/api/lyrics', async (req, res) => {
   }
 });
 
+// ---- Feedback (Masukan) ----------------------------------------------------
+// Players send a short message straight to the team. Append-only: nothing in
+// the app reads these rows back, so there is no read or delete endpoint.
+const FEEDBACK_CATEGORIES = new Set(['saran', 'bug', 'ide']);
+const FEEDBACK_MAX_LEN = 2000;
+const FEEDBACK_GAP_MS = 10_000;
+// Light spam guard, in memory only: one message every 10 s per player.
+// Resets on restart, which is acceptable for this purpose.
+const lastFeedbackAt = new Map();
+
+app.post('/api/feedback', async (req, res) => {
+  const b = req.body || {};
+  if (!FEEDBACK_CATEGORIES.has(b.category)) return res.status(400).json({ code: 'bad_category' });
+  const message = clip(b.message, FEEDBACK_MAX_LEN).trim();
+  if (!message) return res.status(400).json({ code: 'empty_message' });
+  const now = Date.now();
+  if (now - (lastFeedbackAt.get(req.user.id) || 0) < FEEDBACK_GAP_MS) {
+    return res.status(429).json({ code: 'rate_limited' });
+  }
+  lastFeedbackAt.set(req.user.id, now);
+  try {
+    await pool.query(
+      'INSERT INTO feedback (user_id, username, category, message) VALUES ($1, $2, $3, $4)',
+      [String(req.user.id), req.user.username || null, b.category, message]
+    );
+  } catch (err) {
+    console.warn('feedback insert failed: ' + err.message);
+    return res.status(500).json({ code: 'db_error' });
+  }
+  res.status(201).json({ ok: true });
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // HTML shell: serve the app if authenticated. Unauthenticated top-level
@@ -244,12 +276,37 @@ async function shutdown(signal) {
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
-// Musik Dunia keeps projects in the browser (no tables yet), so there is no
-// schema to apply on boot.
-function start() {
+// Musik Dunia keeps projects in the browser; the one table it has is
+// feedback ("Masukan") messages players send to the team. The schema is
+// applied idempotently on boot, before listening, so no request can race it.
+// staging:private because messages are user-authored personal content:
+// staging previews then start with an empty table instead of real rows.
+const FEEDBACK_SCHEMA = `
+CREATE TABLE IF NOT EXISTS feedback (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id text NOT NULL,
+  username text,
+  category text NOT NULL,
+  message text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+COMMENT ON TABLE feedback IS 'staging:private';
+`;
+
+async function start() {
+  try {
+    await pool.query(FEEDBACK_SCHEMA);
+  } catch (err) {
+    // A bare local run may have no database at all: start anyway, the
+    // feedback endpoint answers 500 and the frontend shows its error state.
+    console.warn('feedback schema failed, starting without it: ' + err.message);
+  }
   server = app.listen(port, () => console.log(`Listening on :${port}`));
   // Let Envoy retire idle upstream connections at 60s, with a 15s margin.
   server.keepAliveTimeout = 75_000;
 }
 
-start();
+start().catch((err) => {
+  console.error('startup failed: ' + err.message);
+  process.exit(1);
+});

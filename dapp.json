@@ -26,6 +26,15 @@
       "name": "Halaman Tentang Budaya Bugis & Makassar",
       "path": "/#budaya/bugis",
       "expectText": "Variasi antardaerah banyak, periksa dengan pelaku budaya setempat."
+    },
+    {
+      "id": "masukan.form",
+      "name": "Masukan memuat formulir pesan",
+      "path": "/#masukan",
+      "expectSelector": "#fbSend",
+      "expectText": "Masukan",
+      "visual": true,
+      "impact": ["public/index.html"]
     }
   ]
 }
