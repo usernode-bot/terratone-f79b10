@@ -177,6 +177,9 @@
     .seg { display:inline-flex; background:var(--s2); border-radius:12px; padding:3px; gap:2px; }
     .seg button { border:0; background:none; min-height:36px; padding:0 12px; border-radius:9px; font-weight:600; font-size:14px; cursor:pointer; color:var(--mut); }
     .seg button.on { background:var(--s1); color:var(--fg); box-shadow:0 1px 3px var(--shade); }
+    .seg.lang { padding:2px; }
+    .seg.lang button { min-height:32px; padding:0 10px; white-space:nowrap; }
+    .seg.lang button.on { background:var(--acc); color:var(--acc-fg); box-shadow:none; }
     /* Drum sequencer */
     .seq { overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:6px; }
     .seq table { border-collapse:separate; border-spacing:3px; }
@@ -273,7 +276,7 @@
         <span class="nm"><span data-i="appName">Musik Dunia</span><small id="projName"></small></span>
       </button>
       <button class="btn sm ghost" data-a="go" data-v="belajar" id="btnLearn">Belajar</button>
-      <button class="btn sm" data-a="lang" id="btnLang" aria-label="Bahasa">EN</button>
+      <span class="seg lang" role="group" id="langSeg" aria-label="Bahasa aplikasi"><button data-a="lang" data-v="id" lang="id" class="on" aria-pressed="true">ID</button><button data-a="lang" data-v="en" lang="en" aria-pressed="false">EN</button></span>
       <button class="btn sm icon" data-a="theme" id="btnTheme" aria-label="Tema"></button>
     </div>
   </header>
@@ -310,7 +313,7 @@
 'use strict';
 /* ===================== I18N (Indonesian default, English option) ===================== */
 const DICT = {
-  appName: ['Musik Dunia', 'Musik Dunia'], learn: ['Belajar', 'Learn'], switchLang: ['Ganti ke bahasa Inggris', 'Switch to Indonesian'],
+  appName: ['Musik Dunia', 'Musik Dunia'], learn: ['Belajar', 'Learn'], uiLang: ['Bahasa aplikasi', 'App language'],
   lightMode: ['Mode terang', 'Light mode'], darkMode: ['Mode gelap', 'Dark mode'],
   navGenre: ['Genre', 'Genre'], navLirik: ['Lirik', 'Lyrics'], navMusik: ['Musik', 'Music'], navMixer: ['Mixer', 'Mixer'], navEkspor: ['Ekspor', 'Export'],
   steps: ['Tahap', 'Steps'], stIdea: ['Ide', 'Idea'], stStyle: ['Gaya', 'Style'], stLyrics: ['Lirik', 'Lyrics'], stMusic: ['Musik', 'Music'], stPlay: ['Putar & ekspor', 'Play & export'],
@@ -2312,8 +2315,15 @@ function chrome() {
   document.documentElement.lang = S.lang;
   document.querySelectorAll('[data-i]').forEach(el => { el.textContent = t(el.dataset.i); });
   document.getElementById('projName').textContent = S.proj ? S.proj.name : '';
-  document.getElementById('btnLang').textContent = S.lang === 'id' ? 'EN' : 'ID';
-  document.getElementById('btnLang').setAttribute('aria-label', t('switchLang'));
+  const langSeg = document.getElementById('langSeg');
+  if (langSeg) {
+    langSeg.setAttribute('aria-label', t('uiLang'));
+    langSeg.querySelectorAll('button').forEach(b => {
+      const on = b.dataset.v === S.lang;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
   document.getElementById('btnLearn').textContent = t('learn');
   const dark = document.documentElement.classList.contains('dark');
   document.getElementById('btnTheme').innerHTML = dark
@@ -2588,7 +2598,7 @@ function importFile(f) {
 const ACT = {
   go: el => go(el.dataset.v),
   back: () => history.length > 1 ? history.back() : go('belajar'),
-  lang: () => { S.lang = S.lang === 'id' ? 'en' : 'id'; try { localStorage.setItem('md.lang', S.lang); } catch (e) {} render(); },
+  lang: el => { const v = el.dataset.v === 'en' ? 'en' : 'id'; if (v === S.lang) return; S.lang = v; try { localStorage.setItem('md.lang', S.lang); } catch (e) {} render(); },
   theme: () => { const dark = !document.documentElement.classList.contains('dark'); try { localStorage.setItem('md.theme', dark ? 'dark' : 'light'); } catch (e) {} window.__mdApplyTheme(); render(); },
   tip: el => { const box = document.getElementById('tipbox'); if (box.style.display === 'block' && box.dataset.k === el.dataset.v) { hideTip(); return; } box.dataset.k = el.dataset.v; showTip(el, el.dataset.v); },
   newProject: () => { const p = newProject({}); regenAll(p); addProject(p); toast(t('projectCreated')); go('ide'); },
