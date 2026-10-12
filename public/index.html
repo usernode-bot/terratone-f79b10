@@ -321,7 +321,7 @@ const DICT = {
   whatIs: ['Apa itu', 'What is'], untitled: ['Lagu tanpa judul', 'Untitled song'], copySuffix: ['(salinan)', '(copy)'],
   noProjectTitle: ['Belum ada proyek', 'No project yet'], noProjectBody: ['Belum ada proyek, mulai dari templat atau buat proyek baru.', 'No project yet. Start from a template or create a new project.'],
   newProject: ['Proyek baru', 'New project'], seeTemplates: ['Lihat templat', 'See templates'],
-  myProjects: ['Proyek saya', 'My projects'], openFile: ['Buka berkas', 'Open file'], open: ['Buka', 'Open'], duplicate: ['Duplikat', 'Duplicate'], delete: ['Hapus', 'Delete'],
+  myProjects: ['Proyek saya', 'My projects'], openFile: ['Buka berkas', 'Open file'], open: ['Buka', 'Open'], duplicate: ['Duplikat', 'Duplicate'], delete: ['Hapus', 'Delete'], fromTpl: ['Dari templat', 'From template'],
   emptyProjects: ['Belum ada proyek, mulai dari templat', 'No projects yet, start from a template'], emptyProjectsBody: ['Pilih templat di bawah untuk langsung mendengar lagu, lalu ubah sesukamu.', 'Pick a template below to hear a song right away, then change anything you like.'],
   templates: ['Templat siap putar', 'Ready-to-play templates'], templatesHint: ['Tiap templat sudah lengkap dengan drum, bass, akor, melodi, dan lirik.', 'Each template comes with drums, bass, chords, melody and lyrics.'],
   ideaTitle: ['Ide lagu', 'Song idea'], songTitle: ['Judul', 'Title'], songTitlePh: ['Misalnya: Cahaya Pagi', 'For example: Morning Light'],
@@ -1807,7 +1807,7 @@ VIEWS.proyek = () => {
     <button class="btn pri" data-a="newProject">${esc(t('newProject'))}</button></div>
   ${list.length ? `<div class="panel list" id="projList">${list.map(p => `
     <div class="li"><span style="font-size:24px" aria-hidden="true">${GMAP[p.style.a] ? GMAP[p.style.a].ic : '🎵'}</span>
-      <div class="grow"><b>${esc(p.name)}</b><div class="small mut">${esc(gName(p.style.a))}${p.style.b ? ' + ' + esc(gName(p.style.b)) : ''} · ${p.bpm} BPM · ${esc(fmt(p.updatedAt))}</div></div>
+      <div class="grow"><b>${esc(p.name)}</b>${p.fromTemplate ? ` <span class="tag">${esc(t('fromTpl'))}</span>` : ''}<div class="small mut">${esc(gName(p.style.a))}${p.style.b ? ' + ' + esc(gName(p.style.b)) : ''} · ${p.bpm} BPM · ${esc(fmt(p.updatedAt))}</div></div>
       <button class="btn sm" data-a="open" data-v="${p.id}">${esc(t('open'))}</button>
       <button class="btn sm icon" data-a="dupProject" data-v="${p.id}" aria-label="${esc(t('duplicate'))}" title="${esc(t('duplicate'))}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg></button>
       <button class="btn sm icon danger" data-a="delProject" data-v="${p.id}" aria-label="${esc(t('delete'))}" title="${esc(t('delete'))}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
