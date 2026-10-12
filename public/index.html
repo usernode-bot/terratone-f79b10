@@ -234,8 +234,9 @@
     /* Player + nav */
     .player { position:fixed; left:0; right:0; bottom:calc(60px + var(--safe-b)); z-index:40; background:var(--s1); border-top:1px solid var(--line); }
     .player-in { max-width:980px; margin:0 auto; display:flex; align-items:center; gap:6px; padding:6px 10px; }
-    .player .pos { font-variant-numeric:tabular-nums; font-size:13px; color:var(--mut); min-width:64px; }
+    .player .pos { font-variant-numeric:tabular-nums; font-size:13px; color:var(--mut); min-width:64px; white-space:nowrap; }
     .player canvas { flex:1; min-width:40px; height:34px; border-radius:8px; background:var(--s2); }
+    .player canvas.off { visibility:hidden; }
     .player .bpm { font-size:13px; font-weight:700; min-width:54px; text-align:center; }
     nav.bnav { position:fixed; left:0; right:0; bottom:0; z-index:41; background:var(--s1); border-top:1px solid var(--line); padding-bottom:var(--safe-b); }
     nav.bnav .in { max-width:980px; margin:0 auto; display:grid; grid-template-columns:repeat(5,1fr); }
@@ -291,7 +292,7 @@
       <button class="btn icon" data-a="stop" aria-label="Berhenti"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button>
       <button class="btn sm icon" data-a="loopToggle" id="btnLoop" aria-label="Ulang"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg></button>
       <button class="btn sm icon" data-a="metroToggle" id="btnMetro" aria-label="Metronom"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 3h6l4 18H5z"/><path d="M12 15l5-8"/></svg></button>
-      <div class="pos" id="pos">1.1</div>
+      <div class="pos" id="pos">Birama 1.1</div>
       <canvas id="miniViz" aria-hidden="true"></canvas>
       <div class="bpm" id="pbpm">120</div>
     </div>
@@ -2343,6 +2344,8 @@ function chrome() {
   document.querySelectorAll('nav.bnav [data-nav]').forEach(b => { const on = navMap[S.view] === b.dataset.nav; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   document.getElementById('player').style.display = S.proj ? '' : 'none';
   document.getElementById('pbpm').textContent = S.proj ? S.proj.bpm + ' BPM' : '';
+  const pos = document.getElementById('pos');
+  if (pos) pos.textContent = t('bar') + ' ' + (pos.dataset.p || '1.1');
   document.getElementById('btnLoop').classList.toggle('on', P.loop);
   document.getElementById('btnLoop').setAttribute('aria-label', t('loopSection'));
   document.getElementById('btnMetro').classList.toggle('on', P.metro);
@@ -2354,13 +2357,14 @@ function updatePlayBtn() {
   b.innerHTML = P.playing ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>';
   b.setAttribute('aria-label', P.playing ? t('pause') : t('play'));
   const big = document.querySelector('#view [data-a="play"]'); if (big) big.textContent = P.playing ? t('pause') : t('play');
+  const mv = document.getElementById('miniViz'); if (mv) mv.classList.toggle('off', !P.playing);
 }
 function onStepUI(step) {
   const p = S.proj; if (!p) return;
   if (step >= 0) P.lastT = A.ctx ? A.ctx.currentTime : null;
   const spb = stepsPerBar(p);
   const pos = document.getElementById('pos');
-  if (pos) { if (step < 0) pos.textContent = '1.1'; else { const bar = Math.floor(step / spb), w = step % spb, beats = meterOf(p).beats; let bi = 0; beats.forEach((b, i) => { if (w >= b) bi = i; }); pos.textContent = (bar + 1) + '.' + (bi + 1); } }
+  if (pos) { const num = step < 0 ? '1.1' : (() => { const bar = Math.floor(step / spb), w = step % spb, beats = meterOf(p).beats; let bi = 0; beats.forEach((b, i) => { if (w >= b) bi = i; }); return (bar + 1) + '.' + (bi + 1); })(); pos.dataset.p = num; pos.textContent = t('bar') + ' ' + num; }
   if (S.view === 'musik' && S.tab === 'drum') {
     const w = step % spb, bar = Math.floor(step / spb);
     document.querySelectorAll('.cell.play').forEach(c => c.classList.remove('play'));
