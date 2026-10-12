@@ -18,6 +18,14 @@
       "impact": ["public/index.html"]
     },
     {
+      "name": "Kartu templat punya tag suasana dan tombol Dengar",
+      "path": "/",
+      "expectSelector": "#templateGrid [data-a=\"prevTemplate\"][data-v=\"t-pop\"]",
+      "expectText": "Dengar",
+      "visual": true,
+      "impact": ["public/index.html"]
+    },
+    {
       "name": "Halaman Belajar memuat istilah dan daftar budaya",
       "path": "/#belajar",
       "expectText": "Tentang budaya"

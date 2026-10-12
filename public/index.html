@@ -403,7 +403,9 @@ const DICT = {
   imported: ['Proyek dibuka.', 'Project opened.'], importFailed: ['Berkas ini bukan proyek Musik Dunia.', 'This file is not a Musik Dunia project.'],
   projectCreated: ['Proyek baru dibuat.', 'New project created.'], duplicated: ['Proyek diduplikat.', 'Project duplicated.'], deleted: ['Proyek dihapus.', 'Project deleted.'],
   deleteTitle: ['Hapus proyek?', 'Delete project?'], deleteBody: ['"{name}" akan dihapus dari perangkat ini.', '"{name}" will be removed from this device.'], cancel: ['Batal', 'Cancel'],
-  templateReady: ['Templat "{name}" diputar.', 'Playing template "{name}".'], storageFull: ['Penyimpanan peramban penuh. Ekspor proyek agar tidak hilang.', 'Browser storage is full. Export your project so it is not lost.'],
+  templateReady: ['Templat "{name}" diputar.', 'Playing template "{name}".'],
+  listen: ['Dengar', 'Listen'], previewOf: ['Dengar pratinjau {name}', 'Listen to a preview of {name}'], stopPreview: ['Hentikan pratinjau {name}', 'Stop the preview of {name}'],
+  storageFull: ['Penyimpanan peramban penuh. Ekspor proyek agar tidak hilang.', 'Browser storage is full. Export your project so it is not lost.'],
   noAudio: ['Peramban ini tidak mendukung Web Audio, jadi suara tidak bisa diputar.', 'This browser does not support Web Audio, so sound cannot play.'], working: ['Memproses…', 'Working…'],
   learnTitle: ['Belajar', 'Learn'], glossary: ['Istilah musik', 'Music terms'], cultureList: ['Tentang budaya', 'About the cultures'], cultureListHint: ['Ketuk sebuah gaya untuk membaca asal budayanya.', 'Tap a style to read about where it comes from.'],
   learnHint: ['Belajar: istilah musik, tangga nada, dan budaya', 'Learn: music terms, scales and cultures'],
@@ -1526,6 +1528,7 @@ function scheduleStep(ctx, g, p, idx, step, t) {
 // ---- Transport (look-ahead scheduler on the AudioContext clock)
 const P = { playing: false, step: 0, next: 0, timer: null, idx: null, ver: -1, queue: [], ui: -1, loop: false, loopA: 0, loopB: 0, metro: false };
 function transportPlay(fromStep) {
+  stopCardPreview();
   const g = liveGraph(); if (!g) { toast(t('noAudio')); return; }
   const ctx = A.ctx, p = S.proj;
   if (P.playing) return;
@@ -1575,6 +1578,53 @@ function previewNote(trackId, midi, dur) {
   playNote(A.ctx, g.tracks[tr.id].in, instCfg(tr), midiFreq(midi, S.proj), A.ctx.currentTime + .01, dur || .4, .8);
 }
 function previewDrum(v) { const g = liveGraph(); if (!g) return; const dt = S.proj.tracks.find(x => x.kind === 'drums'); playDrum(A.ctx, g.tracks[dt.id].in, v, A.ctx.currentTime + .01, .9, S.proj); }
+
+// ---- Template card preview: plays a few seconds of a template without opening it.
+// Separate graph and state, so S.proj, A.g and the P transport are never touched.
+let CP = { id: null, g: null, timer: null };
+function cardPrevBtnInner(tp) {
+  const on = CP.id === tp.id;
+  return (on ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>'
+             : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>')
+    + esc(t(on ? 'stop' : 'listen'));
+}
+function updateCardPrevBtns() {
+  document.querySelectorAll('#templateGrid [data-a="prevTemplate"]').forEach(b => {
+    const tp = TEMPLATES.find(x => x.id === b.dataset.v); if (!tp) return;
+    const on = CP.id === tp.id;
+    b.innerHTML = cardPrevBtnInner(tp);
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.setAttribute('aria-label', t(on ? 'stopPreview' : 'previewOf', { name: L(tp.j) }));
+  });
+}
+function startCardPreview(tp) {
+  stopCardPreview();
+  const ctx = ensureAudio(); if (!ctx) { toast(t('noAudio')); return; }
+  if (P.playing) transportPause();
+  const p = fromTemplate(tp);
+  const g = buildGraph(ctx, p);
+  const sd = stepDur(p), spb = stepsPerBar(p), barSec = spb * sd;
+  const bars = clamp(Math.floor(8 / barSec), 1, p.bars), steps = bars * spb;
+  const idx = buildIndex(p);
+  const t0 = ctx.currentTime + .06;
+  for (let s = 0; s < steps; s++) scheduleStep(ctx, g, p, idx, s, t0 + s * sd);
+  CP = { id: tp.id, g, timer: setTimeout(stopCardPreview, (steps * sd + .8) * 1000) };
+  updateCardPrevBtns();
+}
+function stopCardPreview() {
+  if (CP.id == null) return;
+  clearTimeout(CP.timer);
+  try {
+    if (CP.g) {
+      CP.g.master.disconnect();
+      CP.g.metro.disconnect();
+      Object.values(CP.g.tracks).forEach(n => { try { if (n.lfo) n.lfo.stop(); } catch (e) {} });
+    }
+  } catch (e) {}
+  CP = { id: null, g: null, timer: null };
+  updateCardPrevBtns();
+}
 
 // ---- Offline render (WAV export)
 // Notes are scheduled in one-second chunks from suspend() callbacks, so only
@@ -1817,7 +1867,8 @@ VIEWS.proyek = () => {
   <p class="small mut">${esc(t('templatesHint'))}</p>
   <div class="cards" id="templateGrid">${TEMPLATES.map(tp => { const g = GMAP[tp.g]; return `
     <div class="gcard" role="button" tabindex="0" data-a="useTemplate" data-v="${tp.id}"><div class="sw" style="background:linear-gradient(90deg,${g.col.join(',')})"></div>
-      <div class="ic" aria-hidden="true">${g.ic}</div><div class="nm">${esc(L(tp.j))}</div><div class="rg">${esc(L(g.n))}${tp.g2 ? ' + ' + esc(gName(tp.g2)) : ''} · ${tp.bpm} BPM</div></div>`; }).join('')}</div>`;
+      <div class="ic" aria-hidden="true">${g.ic}</div><div class="nm">${esc(L(tp.j))}</div><div class="rg">${esc(L(g.n))}${tp.g2 ? ' + ' + esc(gName(tp.g2)) : ''} · ${tp.bpm} BPM</div>
+      <div class="row" style="margin-top:auto;gap:4px"><span class="tag">${esc(L(MOODS.find(m => m[0] === tp.mood)[1]))}</span><button class="btn sm ghost${CP.id === tp.id ? ' on' : ''}" style="min-height:30px;padding:0 6px;margin-left:auto" data-a="prevTemplate" data-v="${tp.id}" aria-pressed="${CP.id === tp.id}" aria-label="${esc(t(CP.id === tp.id ? 'stopPreview' : 'previewOf', { name: L(tp.j) }))}">${cardPrevBtnInner(tp)}</button></div></div>`; }).join('')}</div>`;
 };
 
 VIEWS.ide = () => {
@@ -2414,6 +2465,7 @@ async function confirmAsk(title, message, okLabel) {
 // ---- routing (hash)
 function go(v) { if (location.hash !== '#' + v) location.hash = v; else route(); }
 function route() {
+  stopCardPreview();
   const h = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
   const [v, arg] = h.split('/');
   S.view = VIEWS[v] ? v : 'proyek'; S.arg = arg || null;
@@ -2622,6 +2674,7 @@ const ACT = {
     saveNow(); toast(t('deleted')); go('proyek');
   },
   useTemplate: el => {
+    stopCardPreview();
     const tp = TEMPLATES.find(x => x.id === el.dataset.v); if (!tp) return;
     if (P.playing) transportStop();
     const p = fromTemplate(tp); addProject(p); toast(t('templateReady', { name: p.name }));
@@ -2679,6 +2732,10 @@ const ACT = {
     touched({ render: false });
   },
   prevDrum: el => previewDrum(el.dataset.v),
+  prevTemplate: el => {
+    const tp = TEMPLATES.find(x => x.id === el.dataset.v); if (!tp) return;
+    if (CP.id === tp.id) stopCardPreview(); else startCardPreview(tp);
+  },
   rmVoice: el => commit(p => { delete p.patterns.A[el.dataset.v]; delete p.patterns.B[el.dataset.v]; }),
   rollTrack: el => { S.rollTrack = el.dataset.v; S.sel = null; const r = document.getElementById('roll'); if (r) r.dataset.scrolled = ''; render(); const r2 = document.getElementById('roll'); if (r2) { delete r2.dataset.scrolled; rollAfterScroll(); } },
   rollMode: el => { S.rollMode = el.dataset.v; render(); },
@@ -2816,7 +2873,7 @@ function bindEvents() {
   window.addEventListener('hashchange', route);
   window.addEventListener('resize', () => { if (S.view === 'musik' && S.tab === 'roll') drawRoll(); drawViz(!P.playing); });
   window.addEventListener('usernode:theme-changed', () => setTimeout(render, 0));
-  window.addEventListener('usernode:visibility-changed', e => { if (e.detail && e.detail.hidden && P.playing) transportPause(); });
+  window.addEventListener('usernode:visibility-changed', e => { if (e.detail && e.detail.hidden) { stopCardPreview(); if (P.playing) transportPause(); } });
   window.addEventListener('pagehide', saveNow);
 }
 
