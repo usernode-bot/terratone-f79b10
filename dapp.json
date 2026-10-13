@@ -1,7 +1,7 @@
 {
   "name": "Musik Dunia",
   "description": "Buat musik semua genre, dari pop sampai musik daerah dunia, dibantu AI",
-  "icon": { "emoji": "🎶" },
+  "icon": { "image": "brand/icon.png", "emoji": "🎶" },
   "llm": {
     "purpose": "Menulis draf lirik lagu sesuai tema, suasana, dan bahasa pilihanmu",
     "suggested_daily_cap_cents": 50

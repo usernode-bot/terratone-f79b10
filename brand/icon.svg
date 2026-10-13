@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Musik Dunia mark: globe with a pair of notes orbiting it.
+       Palette: Black #000000, Yellow #FFEE6F, Cream #FFFEEA (Black + Yellow pairing). -->
+  <!-- Background: full-bleed square; the platform rounds the tile -->
+  <rect width="1024" height="1024" fill="#000000"/>
+  <!-- Orbit, back half (the globe covers the part that passes behind) -->
+  <ellipse cx="512" cy="540" rx="420" ry="140" transform="rotate(-18 512 540)" fill="none" stroke="#FFFEEA" stroke-width="40"/>
+  <!-- Globe -->
+  <circle cx="480" cy="560" r="250" fill="#FFEE6F"/>
+  <!-- Globe lines: meridian + equator -->
+  <ellipse cx="480" cy="560" rx="105" ry="250" fill="none" stroke="#000000" stroke-width="36"/>
+  <line x1="230" y1="560" x2="730" y2="560" stroke="#000000" stroke-width="36" stroke-linecap="round"/>
+  <!-- Orbit, front half (passes in front below the globe) -->
+  <path d="M 110 655 A 420 140 -18 0 0 914 425" fill="none" stroke="#FFFEEA" stroke-width="40"/>
+  <!-- Beamed eighth-note pair riding the orbit at the top right -->
+  <g fill="#FFFEEA">
+    <ellipse cx="710" cy="300" rx="56" ry="42" transform="rotate(-20 710 300)"/>
+    <ellipse cx="855" cy="255" rx="56" ry="42" transform="rotate(-20 855 255)"/>
+    <rect x="736" y="155" width="30" height="150"/>
+    <rect x="881" y="110" width="30" height="150"/>
+    <polygon points="736,155 911,110 911,160 736,205"/>
+  </g>
+</svg>
