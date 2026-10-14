@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <!-- Musik Dunia featured artwork, dark: the app-icon mark on Black. -->
+  <rect width="1600" height="900" fill="#000000"/>
+  <g transform="translate(288 32)">
+    <ellipse cx="512" cy="540" rx="420" ry="140" transform="rotate(-18 512 540)" fill="none" stroke="#FFFEEA" stroke-width="40"/>
+    <circle cx="480" cy="560" r="250" fill="#FFEE6F"/>
+    <ellipse cx="480" cy="560" rx="105" ry="250" fill="none" stroke="#000000" stroke-width="36"/>
+    <line x1="230" y1="560" x2="730" y2="560" stroke="#000000" stroke-width="36" stroke-linecap="round"/>
+    <path d="M 110 655 A 420 140 -18 0 0 914 425" fill="none" stroke="#FFFEEA" stroke-width="40"/>
+    <g fill="#FFFEEA">
+      <ellipse cx="710" cy="300" rx="56" ry="42" transform="rotate(-20 710 300)"/>
+      <ellipse cx="855" cy="255" rx="56" ry="42" transform="rotate(-20 855 255)"/>
+      <rect x="736" y="155" width="30" height="150"/>
+      <rect x="881" y="110" width="30" height="150"/>
+      <polygon points="736,155 911,110 911,160 736,205"/>
+    </g>
+  </g>
+</svg>
