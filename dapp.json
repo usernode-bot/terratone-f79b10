@@ -26,6 +26,11 @@
       "impact": ["public/index.html"]
     },
     {
+      "name": "Bilah atas punya tombol Simpan",
+      "path": "/",
+      "expectSelector": "header.top #btnSave[data-a=\"saveSong\"]"
+    },
+    {
       "name": "Beranda punya tombol Acak untuk memutar gaya acak",
       "path": "/",
       "expectSelector": "#shufflePanel #btnShuffle[data-a=\"shuffle\"]",
