@@ -34,6 +34,11 @@
       "name": "Halaman Tentang Budaya Bugis & Makassar",
       "path": "/#budaya/bugis",
       "expectText": "Variasi antardaerah banyak, periksa dengan pelaku budaya setempat."
+    },
+    {
+      "name": "Bilah atas punya tombol Simpan",
+      "path": "/",
+      "expectSelector": "header.top #btnSave[data-a=\"saveSong\"]"
     }
   ]
 }
