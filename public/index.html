@@ -85,7 +85,7 @@
   </script>
   <script src="/usernode-native/v1/native.js"></script>
   <style>
-    :root { --a1:#e07a2f; --a2:#f2c14e; --a3:#8c3b1f; --acc:#e07a2f; --acc-fg:#ffffff;
+    :root { --a1:#e07a2f; --a2:#f2c14e; --a3:#8c3b1f; --acc:#e07a2f; --acc-solid:#b85a1a; --acc-fg:#ffffff;
       --safe-b: var(--un-safe-inset-bottom, env(safe-area-inset-bottom, 0px));
       --r:14px; --r-sm:10px; }
     html.dark { --bg:#15110e; --s1:#1e1814; --s2:#29211b; --s3:#382d25; --fg:#f4ece4; --mut:#d6c9ba; --line:#3a2f27; --shade:rgba(0,0,0,.35); }
@@ -97,14 +97,17 @@
     a { color:var(--acc); }
     .accent-bar { height:3px; background:linear-gradient(90deg,var(--a1),var(--a2),var(--a3)); }
     header.top { position:sticky; top:0; z-index:30; background:color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
-    .top-in { max-width:980px; margin:0 auto; display:flex; align-items:center; gap:8px; padding:8px 12px; }
+    .top-in { max-width:980px; margin:0 auto; display:flex; align-items:center; gap:5px; padding:8px 12px; }
     [data-learn] { scroll-margin-top:64px; }
-    .brand { display:flex; align-items:center; gap:8px; font-weight:700; font-size:17px; min-width:0; flex:1; background:none; border:0; padding:4px 0; text-align:left; cursor:pointer; }
+    .brand { display:flex; align-items:center; gap:8px; font-weight:700; font-size:17px; min-width:0; min-height:44px; flex:1; background:none; border:0; padding:4px 0; text-align:left; cursor:pointer; }
     .brand .logo { width:30px; height:30px; border-radius:9px; flex:none; background:linear-gradient(135deg,var(--a1),var(--a3)); display:grid; place-items:center; }
     .brand .nm { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .brand small { display:block; font-weight:500; font-size:12px; color:var(--mut); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .wrap { max-width:980px; margin:0 auto; padding:12px 12px calc(150px + var(--safe-b)); }
     h1 { font-size:22px; font-weight:750; margin:4px 0 4px; letter-spacing:-.01em; }
+    .titleRow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .titleRow h1 { flex:1 1 auto; white-space:nowrap; margin:4px 0; }
+    @media (max-width:419px) { .titleRow h1 { flex:1 1 100%; } }
     h2 { font-size:17px; font-weight:700; margin:18px 0 8px; }
     h3 { font-size:15px; font-weight:650; margin:12px 0 6px; }
     p { margin:0 0 8px; }
@@ -123,15 +126,15 @@
     .sep { height:1px; background:var(--line); margin:12px 0; border:0; }
     .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; padding:0 14px; border-radius:12px; border:1px solid var(--line); background:var(--s2); font-weight:600; cursor:pointer; white-space:nowrap; touch-action:manipulation; }
     .btn:hover { background:var(--s3); }
-    .btn.pri { background:var(--acc); color:var(--acc-fg); border-color:transparent; }
+    .btn.pri { background:var(--acc-solid); color:#ffffff; border-color:transparent; }
     .btn.pri:hover { filter:brightness(1.08); }
     .btn.ghost { background:transparent; border-color:transparent; }
-    .btn.sm { min-height:36px; padding:0 10px; font-size:14px; border-radius:10px; }
+    .btn.sm { min-height:44px; padding:0 10px; font-size:14px; border-radius:10px; }
     .btn.icon { width:44px; padding:0; }
-    .btn.sm.icon { width:36px; }
+    .btn.sm.icon { width:44px; min-height:44px; }
     .btn.danger { color:#e5484d; }
     .btn[disabled] { opacity:.45; pointer-events:none; }
-    .btn.on { background:var(--acc); color:var(--acc-fg); border-color:transparent; }
+    .btn.on { background:var(--acc-solid); color:#ffffff; border-color:transparent; }
     .btn.block { width:100%; }
     :focus-visible { outline:2px solid var(--acc); outline-offset:2px; }
     .chip { display:inline-flex; align-items:center; gap:4px; min-height:36px; padding:0 12px; border-radius:999px; border:1px solid var(--line); background:var(--s1); font-size:14px; cursor:pointer; white-space:nowrap; }
@@ -170,6 +173,10 @@
     .empty .big { font-size:40px; }
     .list { display:flex; flex-direction:column; }
     .li { display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line); }
+    .li.projRow { flex-wrap:nowrap; gap:8px; }
+    .li.projRow b { display:inline-block; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; vertical-align:bottom; }
+    .li.projRow .tag { white-space:nowrap; }
+    .li.projRow .small { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .li:last-child { border-bottom:0; }
     .tabs { display:flex; gap:4px; overflow-x:auto; border-bottom:1px solid var(--line); margin:8px 0 10px; scrollbar-width:none; }
     .tabs::-webkit-scrollbar { display:none; }
@@ -179,8 +186,8 @@
     .seg button { border:0; background:none; min-height:36px; padding:0 12px; border-radius:9px; font-weight:600; font-size:14px; cursor:pointer; color:var(--mut); }
     .seg button.on { background:var(--s1); color:var(--fg); box-shadow:0 1px 3px var(--shade); }
     .seg.lang { padding:2px; }
-    .seg.lang button { min-height:32px; padding:0 10px; white-space:nowrap; }
-    .seg.lang button.on { background:var(--acc); color:var(--acc-fg); box-shadow:none; }
+    .seg.lang button { min-height:44px; min-width:44px; padding:0 10px; white-space:nowrap; }
+    .seg.lang button.on { background:var(--acc-solid); color:#ffffff; box-shadow:none; }
     /* Drum sequencer */
     .seq { overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:6px; }
     .seq table { border-collapse:separate; border-spacing:3px; }
@@ -233,7 +240,7 @@
     canvas.viz { width:100%; height:120px; display:block; border-radius:var(--r-sm); background:var(--s2); }
     /* Player + nav */
     .player { position:fixed; left:0; right:0; bottom:calc(60px + var(--safe-b)); z-index:40; background:var(--s1); border-top:1px solid var(--line); }
-    .player-in { max-width:980px; margin:0 auto; display:flex; align-items:center; gap:6px; padding:6px 10px; }
+    .player-in { max-width:980px; margin:0 auto; display:flex; align-items:center; gap:4px; padding:6px 10px; }
     .player .pos { font-variant-numeric:tabular-nums; font-size:13px; color:var(--mut); min-width:64px; white-space:nowrap; }
     .player canvas { flex:1; min-width:40px; height:34px; border-radius:8px; background:var(--s2); }
     .player canvas.off { visibility:hidden; }
@@ -1810,7 +1817,12 @@ function applyAccent() {
   const r = document.documentElement.style;
   r.setProperty('--a1', col[0]); r.setProperty('--a2', col[1]); r.setProperty('--a3', col[2]);
   const acc = col.find(c => { const l = lum(c); return l > .04 && l < .8; }) || '#e07a2f';
-  r.setProperty('--acc', acc); r.setProperty('--acc-fg', lum(acc) > .45 ? '#1a1410' : '#ffffff');
+  let solid = acc;
+  for (let k = .05; lum(solid) > .1833 && k < 1; k += .05) {
+    const n = parseInt(acc.slice(1), 16), f = 1 - k;
+    solid = '#' + ((1 << 24) + (Math.round(((n >> 16) & 255) * f) << 16) + (Math.round(((n >> 8) & 255) * f) << 8) + Math.round((n & 255) * f)).toString(16).slice(1);
+  }
+  r.setProperty('--acc', acc); r.setProperty('--acc-solid', solid); r.setProperty('--acc-fg', lum(acc) > .45 ? '#1a1410' : '#ffffff');
 }
 
 // ---- lyrics templates (used when the AI is not available)
@@ -1860,7 +1872,7 @@ const VIEWS = {};
 VIEWS.proyek = () => {
   const fmt = ts => new Date(ts).toLocaleDateString(S.lang === 'en' ? 'en-GB' : 'id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   const rowHtml = p => { const saved = !!p.savedAt; const lbl = esc(t(saved ? 'unsave' : 'save')); return `
-    <div class="li"><span style="font-size:24px" aria-hidden="true">${GMAP[p.style.a] ? GMAP[p.style.a].ic : '🎵'}</span>
+    <div class="li projRow"><span style="font-size:24px" aria-hidden="true">${GMAP[p.style.a] ? GMAP[p.style.a].ic : '🎵'}</span>
       <div class="grow"><b>${esc(p.name)}</b>${p.fromTemplate ? ` <span class="tag">${esc(t('fromTpl'))}</span>` : ''}<div class="small mut">${esc(gName(p.style.a))}${p.style.b ? ' + ' + esc(gName(p.style.b)) : ''} · ${p.bpm} BPM · ${esc(fmt(p.updatedAt))}</div></div>
       <button class="btn sm" data-a="open" data-v="${p.id}">${esc(t('open'))}</button>
       <button class="btn sm icon${saved ? ' on' : ''}" data-a="saveSong" data-v="${p.id}" aria-pressed="${saved}" aria-label="${lbl}" title="${lbl}">${starSvg(16, saved)}</button>
@@ -1871,7 +1883,7 @@ VIEWS.proyek = () => {
   const saved = projects.filter(p => p.savedAt).sort((a, b) => b.savedAt - a.savedAt);
   const rest = projects.filter(p => !p.savedAt);
   return `
-  <div class="row"><h1 class="grow">${esc(t('myProjects'))}</h1>
+  <div class="row titleRow"><h1>${esc(t('myProjects'))}</h1>
     <button class="btn" data-a="import">${esc(t('openFile'))}</button>
     <button class="btn pri" data-a="newProject">${esc(t('newProject'))}</button></div>
   ${saved.length ? `<h2>${esc(t('savedList'))}</h2><div class="panel list" id="savedList">${saved.map(rowHtml).join('')}</div>` : ''}
@@ -1882,7 +1894,7 @@ VIEWS.proyek = () => {
   <div class="cards" id="templateGrid">${TEMPLATES.map(tp => { const g = GMAP[tp.g]; return `
     <div class="gcard" role="button" tabindex="0" data-a="useTemplate" data-v="${tp.id}"><div class="sw" style="background:linear-gradient(90deg,${g.col.join(',')})"></div>
       <div class="ic" aria-hidden="true">${g.ic}</div><div class="nm">${esc(L(tp.j))}</div><div class="rg">${esc(L(g.n))}${tp.g2 ? ' + ' + esc(gName(tp.g2)) : ''} · ${tp.bpm} BPM</div>
-      <div class="row" style="margin-top:auto;gap:4px"><span class="tag">${esc(L(MOODS.find(m => m[0] === tp.mood)[1]))}</span><button class="btn sm ghost${CP.id === tp.id ? ' on' : ''}" style="min-height:30px;padding:0 6px;margin-left:auto" data-a="prevTemplate" data-v="${tp.id}" aria-pressed="${CP.id === tp.id}" aria-label="${esc(t(CP.id === tp.id ? 'stopPreview' : 'previewOf', { name: L(tp.j) }))}">${cardPrevBtnInner(tp)}</button></div></div>`; }).join('')}</div>`;
+      <div class="row" style="margin-top:auto;gap:4px"><span class="tag">${esc(L(MOODS.find(m => m[0] === tp.mood)[1]))}</span><button class="btn sm ghost${CP.id === tp.id ? ' on' : ''}" style="min-height:44px;padding:0 6px;margin-left:auto" data-a="prevTemplate" data-v="${tp.id}" aria-pressed="${CP.id === tp.id}" aria-label="${esc(t(CP.id === tp.id ? 'stopPreview' : 'previewOf', { name: L(tp.j) }))}">${cardPrevBtnInner(tp)}</button></div></div>`; }).join('')}</div>`;
 };
 
 VIEWS.ide = () => {
