@@ -26,6 +26,11 @@
       "impact": ["public/index.html"]
     },
     {
+      "name": "Bilah atas punya tombol Simpan",
+      "path": "/",
+      "expectSelector": "header.top #btnSave[data-a=\"saveSong\"]"
+    },
+    {
       "name": "Halaman Belajar memuat istilah dan daftar budaya",
       "path": "/#belajar",
       "expectText": "Tentang budaya"
