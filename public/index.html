@@ -324,6 +324,8 @@ const DICT = {
   newProject: ['Proyek baru', 'New project'], seeTemplates: ['Lihat templat', 'See templates'],
   myProjects: ['Proyek saya', 'My projects'], openFile: ['Buka berkas', 'Open file'], open: ['Buka', 'Open'], duplicate: ['Duplikat', 'Duplicate'], delete: ['Hapus', 'Delete'], fromTpl: ['Dari templat', 'From template'],
   emptyProjects: ['Belum ada proyek, mulai dari templat', 'No projects yet, start from a template'], emptyProjectsBody: ['Pilih templat di bawah untuk langsung mendengar lagu, lalu ubah sesukamu.', 'Pick a template below to hear a song right away, then change anything you like.'],
+  shuffleTitle: ['Gaya acak', 'Random style'], shuffleHint: ['Dengar satu gaya musik yang dipilih acak dari semua genre.', 'Hear one style picked at random from every genre.'],
+  shuffle: ['Acak', 'Shuffle'], shuffleAgain: ['Acak lagi', 'Shuffle again'], shufflePlaying: ['Sedang diputar', 'Now playing'],
   templates: ['Templat siap putar', 'Ready-to-play templates'], templatesHint: ['Tiap templat sudah lengkap dengan drum, bass, akor, melodi, dan lirik.', 'Each template comes with drums, bass, chords, melody and lyrics.'],
   ideaTitle: ['Ide lagu', 'Song idea'], songTitle: ['Judul', 'Title'], songTitlePh: ['Misalnya: Cahaya Pagi', 'For example: Morning Light'],
   theme: ['Tema', 'Theme'], themePh: ['Lagu ini tentang apa? Misalnya: perjalanan pulang ke kampung', 'What is the song about? For example: travelling back home'],
@@ -1590,6 +1592,7 @@ function cardPrevBtnInner(tp) {
     + esc(t(on ? 'stop' : 'listen'));
 }
 function updateCardPrevBtns() {
+  const sp = document.getElementById('shufflePanel'); if (sp) sp.innerHTML = shuffleInner();
   document.querySelectorAll('#templateGrid [data-a="prevTemplate"]').forEach(b => {
     const tp = TEMPLATES.find(x => x.id === b.dataset.v); if (!tp) return;
     const on = CP.id === tp.id;
@@ -1599,19 +1602,39 @@ function updateCardPrevBtns() {
     b.setAttribute('aria-label', t(on ? 'stopPreview' : 'previewOf', { name: L(tp.j) }));
   });
 }
-function startCardPreview(tp) {
+function startCardPreview(tp) { startPreview(tp.id, () => fromTemplate(tp), 8); }
+// Plays `sec` seconds of a project built by make(). Ids: a template id, or 'g:<genre>' for the shuffle.
+function startPreview(id, make, sec) {
   stopCardPreview();
   const ctx = ensureAudio(); if (!ctx) { toast(t('noAudio')); return; }
   if (P.playing) transportPause();
-  const p = fromTemplate(tp);
+  const p = make();
   const g = buildGraph(ctx, p);
   const sd = stepDur(p), spb = stepsPerBar(p), barSec = spb * sd;
-  const bars = clamp(Math.floor(8 / barSec), 1, p.bars), steps = bars * spb;
+  const bars = clamp(Math.floor(sec / barSec), 1, p.bars), steps = bars * spb;
   const idx = buildIndex(p);
   const t0 = ctx.currentTime + .06;
   for (let s = 0; s < steps; s++) scheduleStep(ctx, g, p, idx, s, t0 + s * sd);
-  CP = { id: tp.id, g, timer: setTimeout(stopCardPreview, (steps * sd + .8) * 1000) };
+  CP = { id, g, timer: setTimeout(stopCardPreview, (steps * sd + .8) * 1000) };
   updateCardPrevBtns();
+}
+// The style that is sounding now (shuffle, template preview or the open project), so the shuffle can skip it.
+function playingGenre() {
+  if (CP.id) { if (CP.id.startsWith('g:')) return CP.id.slice(2); const tp = TEMPLATES.find(x => x.id === CP.id); return tp ? tp.g : null; }
+  return P.playing && S.proj ? S.proj.style.a : null;
+}
+function shuffleStyle() {
+  const cur = playingGenre(), pool = GENRES.filter(g => g.id !== cur);
+  const g = pool[Math.floor(Math.random() * pool.length)];
+  startPreview('g:' + g.id, () => { const p = newProject({ g: g.id, bpm: g.bpm }); regenAll(p); return p; }, 16);
+}
+function shuffleInner() {
+  const g = CP.id && CP.id.startsWith('g:') ? GMAP[CP.id.slice(2)] : null;
+  const ico = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>';
+  const btn = `<button class="btn" data-a="shuffle" id="btnShuffle">${ico}${esc(t(g ? 'shuffleAgain' : 'shuffle'))}</button>`;
+  if (!g) return `<span style="font-size:24px" aria-hidden="true">🎧</span><div class="grow"><b>${esc(t('shuffleTitle'))}</b><div class="small mut">${esc(t('shuffleHint'))}</div></div>${btn}`;
+  return `<span style="font-size:24px" aria-hidden="true">${g.ic}</span><div class="grow" id="shuffleNow" data-g="${g.id}"><div class="small mut">${esc(t('shufflePlaying'))}</div><b>${esc(L(g.n))}</b><div class="small mut">${esc(L(g.rg))} · ${g.bpm} BPM</div></div>
+    <button class="btn sm" data-a="stopPreview">${esc(t('stop'))}</button><button class="btn sm ghost" data-a="culture" data-v="${g.id}">${esc(t('about'))}</button>${btn}`;
 }
 function stopCardPreview() {
   if (CP.id == null) return;
@@ -1864,6 +1887,7 @@ VIEWS.proyek = () => {
       <button class="btn sm icon danger" data-a="delProject" data-v="${p.id}" aria-label="${esc(t('delete'))}" title="${esc(t('delete'))}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
     </div>`).join('')}</div>`
   : `<div class="panel empty" id="emptyProjects"><div class="big" aria-hidden="true">🎶</div><h2>${esc(t('emptyProjects'))}</h2><p>${esc(t('emptyProjectsBody'))}</p></div>`}
+  <div class="panel row" id="shufflePanel" aria-live="polite">${shuffleInner()}</div>
   <h2>${esc(t('templates'))}</h2>
   <p class="small mut">${esc(t('templatesHint'))}</p>
   <div class="cards" id="templateGrid">${TEMPLATES.map(tp => { const g = GMAP[tp.g]; return `
@@ -2744,6 +2768,8 @@ const ACT = {
     touched({ render: false });
   },
   prevDrum: el => previewDrum(el.dataset.v),
+  shuffle: () => shuffleStyle(),
+  stopPreview: () => stopCardPreview(),
   prevTemplate: el => {
     const tp = TEMPLATES.find(x => x.id === el.dataset.v); if (!tp) return;
     if (CP.id === tp.id) stopCardPreview(); else startCardPreview(tp);
