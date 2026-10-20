@@ -405,6 +405,8 @@ const DICT = {
   projectCreated: ['Proyek baru dibuat.', 'New project created.'], duplicated: ['Proyek diduplikat.', 'Project duplicated.'], deleted: ['Proyek dihapus.', 'Project deleted.'],
   deleteTitle: ['Hapus proyek?', 'Delete project?'], deleteBody: ['"{name}" akan dihapus dari perangkat ini.', '"{name}" will be removed from this device.'], cancel: ['Batal', 'Cancel'],
   templateReady: ['Templat "{name}" diputar.', 'Playing template "{name}".'],
+  shuffle: ['Acak', 'Shuffle'], shuffleLabel: ['Mulai lagu dengan gaya acak', 'Start a song in a random style'],
+  shuffleReady: ['Gaya acak: {style}. Diputar.', 'Random style: {style}. Playing.'],
   listen: ['Dengar', 'Listen'], previewOf: ['Dengar pratinjau {name}', 'Listen to a preview of {name}'], stopPreview: ['Hentikan pratinjau {name}', 'Stop the preview of {name}'],
   storageFull: ['Penyimpanan peramban penuh. Ekspor proyek agar tidak hilang.', 'Browser storage is full. Export your project so it is not lost.'],
   noAudio: ['Peramban ini tidak mendukung Web Audio, jadi suara tidak bisa diputar.', 'This browser does not support Web Audio, so sound cannot play.'], working: ['Memproses…', 'Working…'],
@@ -1853,8 +1855,9 @@ VIEWS.proyek = () => {
   const list = S.projects.slice().sort((a, b) => b.updatedAt - a.updatedAt);
   const fmt = ts => new Date(ts).toLocaleDateString(S.lang === 'en' ? 'en-GB' : 'id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   return `
-  <div class="row"><h1 class="grow">${esc(t('myProjects'))}</h1>
+  <div class="row"><h1 class="grow" style="min-width:max-content">${esc(t('myProjects'))}</h1>
     <button class="btn" data-a="import">${esc(t('openFile'))}</button>
+    <button class="btn" data-a="shuffleStyle" aria-label="${esc(t('shuffleLabel'))}" title="${esc(t('shuffleLabel'))}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>${esc(t('shuffle'))}</button>
     <button class="btn pri" data-a="newProject">${esc(t('newProject'))}</button></div>
   ${list.length ? `<div class="panel list" id="projList">${list.map(p => `
     <div class="li"><span style="font-size:24px" aria-hidden="true">${GMAP[p.style.a] ? GMAP[p.style.a].ic : '🎵'}</span>
@@ -2690,6 +2693,14 @@ const ACT = {
     const tp = TEMPLATES.find(x => x.id === el.dataset.v); if (!tp) return;
     if (P.playing) transportStop();
     const p = fromTemplate(tp); addProject(p); toast(t('templateReady', { name: p.name }));
+    go('mixer'); setTimeout(() => transportPlay(0), 60);
+  },
+  shuffleStyle: () => {
+    stopCardPreview();
+    if (P.playing) transportStop();
+    const g = GENRES[Math.floor(Math.random() * GENRES.length)];
+    const p = newProject({ g: g.id, bpm: g.bpm }); regenAll(p); addProject(p);
+    toast(t('shuffleReady', { style: gName(g.id) }));
     go('mixer'); setTimeout(() => transportPlay(0), 60);
   },
   import: () => document.getElementById('fileImport').click(),

@@ -18,6 +18,13 @@
       "impact": ["public/index.html"]
     },
     {
+      "name": "Tombol Acak tampil di daftar proyek",
+      "path": "/",
+      "expectSelector": "button[data-a=\"shuffleStyle\"]",
+      "expectText": "Acak",
+      "impact": ["public/index.html"]
+    },
+    {
       "name": "Kartu templat punya tag suasana dan tombol Dengar",
       "path": "/",
       "expectSelector": "#templateGrid [data-a=\"prevTemplate\"][data-v=\"t-pop\"]",
