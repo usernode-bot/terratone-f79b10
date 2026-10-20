@@ -26,6 +26,12 @@
       "impact": ["public/index.html"]
     },
     {
+      "name": "Beranda punya tombol Acak untuk memutar gaya acak",
+      "path": "/",
+      "expectSelector": "#shufflePanel #btnShuffle[data-a=\"shuffle\"]",
+      "expectText": "Gaya acak"
+    },
+    {
       "name": "Halaman Belajar memuat istilah dan daftar budaya",
       "path": "/#belajar",
       "expectText": "Tentang budaya"
