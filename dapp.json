@@ -9,6 +9,14 @@
   "secrets": [],
   "tests": [
     {
+      "name": "Beranda punya tombol Acak untuk memulai gaya acak",
+      "path": "/",
+      "expectSelector": "[data-a=\"shuffleStyle\"]",
+      "expectText": "Acak",
+      "visual": true,
+      "impact": ["public/index.html"]
+    },
+    {
       "id": "home.templates",
       "name": "Beranda menampilkan templat siap putar",
       "path": "/",
