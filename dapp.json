@@ -31,6 +31,11 @@
       "expectSelector": "header.top #btnSave[data-a=\"saveSong\"]"
     },
     {
+      "name": "Pemutar punya penjelasan Birama dan BPM",
+      "path": "/",
+      "expectSelector": "#player #pos[data-a=\"tip\"][data-v=\"meter\"] ~ #pbpm[data-a=\"tip\"][data-v=\"bpm\"]"
+    },
+    {
       "name": "Beranda punya tombol Acak untuk memutar gaya acak",
       "path": "/",
       "expectSelector": "#shufflePanel #btnShuffle[data-a=\"shuffle\"]",
