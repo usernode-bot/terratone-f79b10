@@ -107,7 +107,7 @@
     h1 { font-size:22px; font-weight:750; margin:4px 0 4px; letter-spacing:-.01em; }
     .titleRow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     .titleRow h1 { flex:1 1 auto; white-space:nowrap; margin:4px 0; }
-    @media (max-width:419px) { .titleRow h1 { flex:1 1 100%; } }
+    @media (max-width:419px) { .titleRow h1 { flex:1 1 100%; } .titleRow { margin-bottom:12px; } }
     h2 { font-size:17px; font-weight:700; margin:18px 0 8px; }
     h3 { font-size:15px; font-weight:650; margin:12px 0 6px; }
     p { margin:0 0 8px; }
@@ -247,7 +247,8 @@
     .player .bpm { font-size:13px; font-weight:700; min-width:54px; text-align:center; }
     nav.bnav { position:fixed; left:0; right:0; bottom:0; z-index:41; background:var(--s1); border-top:1px solid var(--line); padding-bottom:var(--safe-b); }
     nav.bnav .in { max-width:980px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); }
-    nav.bnav button { border:0; background:none; height:60px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:11px; font-weight:600; color:var(--mut); cursor:pointer; }
+    nav.bnav button { border:0; background:none; height:60px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:0 4px; min-width:0; font-size:11px; font-weight:600; color:var(--mut); cursor:pointer; }
+    nav.bnav button span { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     nav.bnav button svg { width:22px; height:22px; }
     nav.bnav button.on { color:var(--acc); }
     #toast { position:fixed; left:50%; bottom:calc(132px + var(--safe-b)); transform:translateX(-50%); z-index:90; background:#231b15; color:#f6eee6; padding:10px 16px; border-radius:999px; font-size:14px; display:none; max-width:90vw; text-align:center; box-shadow:0 6px 24px rgba(0,0,0,.3); }
@@ -2576,7 +2577,9 @@ async function confirmAsk(title, message, okLabel) {
 function go(v) { if (location.hash !== '#' + v) location.hash = v; else route(); }
 function route() {
   stopCardPreview();
-  const h = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
+  // A link may carry a query after the hash (#masukan?demo=1); it is not part
+  // of the view name.
+  const h = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('?')[0];
   const [v, arg] = h.split('/');
   S.view = VIEWS[v] ? v : 'proyek'; S.arg = arg || null;
   if (['lirik', 'musik', 'mixer', 'ekspor'].includes(S.view) && S.proj && !S.proj.tracks[3].notes.length && !Object.keys(S.proj.patterns.A).length) { regenAll(S.proj); saveSoon(); }
