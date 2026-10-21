@@ -246,7 +246,7 @@
     .player canvas.off { visibility:hidden; }
     .player .bpm { font-size:13px; font-weight:700; min-width:54px; text-align:center; }
     nav.bnav { position:fixed; left:0; right:0; bottom:0; z-index:41; background:var(--s1); border-top:1px solid var(--line); padding-bottom:var(--safe-b); }
-    nav.bnav .in { max-width:980px; margin:0 auto; display:grid; grid-template-columns:repeat(5,1fr); }
+    nav.bnav .in { max-width:980px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); }
     nav.bnav button { border:0; background:none; height:60px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:11px; font-weight:600; color:var(--mut); cursor:pointer; }
     nav.bnav button svg { width:22px; height:22px; }
     nav.bnav button.on { color:var(--acc); }
@@ -312,6 +312,7 @@
       <button data-a="go" data-v="musik" data-nav="musik"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg><span data-i="navMusik">Musik</span></button>
       <button data-a="go" data-v="mixer" data-nav="mixer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4v16M12 4v16M18 4v16"/><rect x="4" y="13" width="4" height="3" rx="1" fill="currentColor"/><rect x="10" y="7" width="4" height="3" rx="1" fill="currentColor"/><rect x="16" y="15" width="4" height="3" rx="1" fill="currentColor"/></svg><span data-i="navMixer">Mixer</span></button>
       <button data-a="go" data-v="ekspor" data-nav="ekspor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg><span data-i="navEkspor">Ekspor</span></button>
+      <button data-a="go" data-v="masukan" data-nav="masukan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg><span data-i="navMasukan">Masukan</span></button>
     </div>
   </nav>
   <div id="toast" role="status" aria-live="polite"></div>
@@ -325,7 +326,7 @@
 const DICT = {
   appName: ['Musik Dunia', 'Musik Dunia'], learn: ['Belajar', 'Learn'], uiLang: ['Bahasa aplikasi', 'App language'],
   lightMode: ['Mode terang', 'Light mode'], darkMode: ['Mode gelap', 'Dark mode'],
-  navGenre: ['Genre', 'Genre'], navLirik: ['Lirik', 'Lyrics'], navMusik: ['Musik', 'Music'], navMixer: ['Mixer', 'Mixer'], navEkspor: ['Ekspor', 'Export'],
+  navGenre: ['Genre', 'Genre'], navLirik: ['Lirik', 'Lyrics'], navMusik: ['Musik', 'Music'], navMixer: ['Mixer', 'Mixer'], navEkspor: ['Ekspor', 'Export'], navMasukan: ['Masukan', 'Feedback'],
   steps: ['Tahap', 'Steps'], stIdea: ['Ide', 'Idea'], stStyle: ['Gaya', 'Style'], stLyrics: ['Lirik', 'Lyrics'], stMusic: ['Musik', 'Music'], stPlay: ['Putar & ekspor', 'Play & export'],
   whatIs: ['Apa itu', 'What is'], untitled: ['Lagu tanpa judul', 'Untitled song'], copySuffix: ['(salinan)', '(copy)'],
   noProjectTitle: ['Belum ada proyek', 'No project yet'], noProjectBody: ['Belum ada proyek, mulai dari templat atau buat proyek baru.', 'No project yet. Start from a template or create a new project.'],
@@ -428,6 +429,15 @@ const DICT = {
   notFound: ['Halaman tidak ditemukan.', 'Page not found.'], useStyle: ['Pakai gaya ini', 'Use this style'],
   variationNote: ['Variasi antardaerah banyak, periksa dengan pelaku budaya setempat.', 'There is a lot of regional variation; check with local culture bearers.'],
   communityNote: ['Bila memakai gaya ini untuk karya yang dibagikan, libatkan musisi dan komunitas setempat, sebutkan asalnya, dan hormati lagu atau alat yang bersifat sakral.', 'If you use this style in work you share, involve local musicians and communities, credit its origin, and respect songs or instruments that are sacred.'],
+  fbTitle: ['Masukan', 'Feedback'], fbIntro: ['Ceritakan ide, masalah, atau pengalamanmu memakai Musik Dunia. Pesanmu dikirim ke pembuat aplikasi dan tidak dilihat pengguna lain.', 'Tell us an idea, a problem, or how Musik Dunia is working for you. Your message goes to the app\'s maker and is not seen by other users.'],
+  fbType: ['Jenis masukan', 'Feedback type'], fbSaran: ['Saran', 'Suggestion'], fbMasalah: ['Masalah', 'Problem'], fbPujian: ['Pujian', 'Praise'], fbLainnya: ['Lainnya', 'Other'],
+  fbMsg: ['Pesan', 'Message'], fbPlaceholder: ['Tulis pesanmu di sini…', 'Write your message here…'],
+  fbSend: ['Kirim masukan', 'Send feedback'], fbSending: ['Mengirim…', 'Sending…'], fbEmpty: ['Tulis pesanmu dulu.', 'Write your message first.'],
+  fbWho: ['Nama penggunamu ikut terkirim bersama pesan.', 'Your username is sent with the message.'],
+  fbThanks: ['Terima kasih atas masukanmu!', 'Thanks for your feedback!'], fbThanksBody: ['Pesanmu sudah sampai ke pembuat aplikasi.', 'Your message has reached the app\'s maker.'],
+  fbAgain: ['Kirim masukan lain', 'Send more feedback'],
+  fbFailed: ['Masukan belum terkirim. Periksa koneksi lalu coba lagi.', 'Feedback was not sent. Check your connection and try again.'],
+  fbExpired: ['Sesi berakhir. Muat ulang aplikasi lalu coba lagi.', 'Your session ended. Reload the app and try again.'],
 };
 function t(k, vars) {
   const e = DICT[k];
@@ -1738,6 +1748,9 @@ const S = {
   editPat: 'A', pickFor: 'a', q: '', fc: 'all', ft: 'all', ideas: [],
   aiEnabled: null, guideVoice: false, recording: false, kbOct: 4, kbTrack: 'melody', chordSel: 0,
   loopSong: false, busy: false,
+  // Feedback draft lives only in memory: a tab switch or a language change
+  // keeps it, closing the app does not.
+  fb: { kat: 'saran', msg: '', state: 'idle' },
 };
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const L = pair => Array.isArray(pair) ? (S.lang === 'en' ? (pair[1] != null ? pair[1] : pair[0]) : pair[0]) : (pair || '');
@@ -2106,6 +2119,31 @@ VIEWS.belajar = () => `<h1>${esc(t('learnTitle'))}</h1>
   <div class="panel" data-learn="culture"><h2 style="margin-top:0">${esc(t('cultureList'))}</h2><p class="small mut">${esc(t('cultureListHint'))}</p>
     <div class="chips" style="flex-wrap:wrap">${GENRES.filter(g => g.ty !== 'modern').map(g => `<button class="chip" data-a="culture" data-v="${g.id}">${g.ic} ${esc(L(g.n))}</button>`).join('')}</div></div>`;
 
+const FB_KATS = ['saran', 'masalah', 'pujian', 'lainnya'];
+const FB_KAT_LABEL = { saran: 'fbSaran', masalah: 'fbMasalah', pujian: 'fbPujian', lainnya: 'fbLainnya' };
+
+VIEWS.masukan = () => {
+  const fb = S.fb;
+  if (fb.state === 'sent') return `<h1>${esc(t('fbTitle'))}</h1>
+    <div class="panel empty" id="feedbackSent"><div class="big" aria-hidden="true">🙏</div><h2>${esc(t('fbThanks'))}</h2><p>${esc(t('fbThanksBody'))}</p>
+      <button class="btn" data-a="fbAgain">${esc(t('fbAgain'))}</button></div>`;
+  const banner = fb.state === 'failed' ? `<div class="banner" role="alert">${esc(t('fbFailed'))}</div>`
+    : fb.state === 'expired' ? `<div class="banner" role="alert">${esc(t('fbExpired'))}</div>` : '';
+  const sending = fb.state === 'sending', blank = !fb.msg.trim();
+  return `<h1>${esc(t('fbTitle'))}</h1>
+  <p class="small mut">${esc(t('fbIntro'))}</p>
+  ${banner}
+  <div class="panel col" id="feedbackForm">
+    <div class="small mut" style="font-weight:600" id="fbTypeLabel">${esc(t('fbType'))}</div>
+    <div class="chips" role="group" aria-labelledby="fbTypeLabel" style="flex-wrap:wrap;overflow:visible">${FB_KATS.map(k =>
+      `<button class="chip${fb.kat === k ? ' on' : ''}" data-a="fbKat" data-v="${k}" aria-pressed="${fb.kat === k ? 'true' : 'false'}">${esc(t(FB_KAT_LABEL[k]))}</button>`).join('')}</div>
+    <label class="f">${esc(t('fbMsg'))}<textarea class="inp" data-f="fbMsg" maxlength="2000" placeholder="${esc(t('fbPlaceholder'))}">${esc(fb.msg)}</textarea></label>
+    <div class="row"><span class="small mut grow">${esc(t('fbWho'))}</span><span class="small mut" id="fbCount">${fb.msg.length}/2000</span></div>
+    <button class="btn pri block" data-a="fbSend" id="fbSend"${blank || sending ? ' disabled' : ''}>${esc(t(sending ? 'fbSending' : 'fbSend'))}</button>
+    <p class="small mut" id="fbHint"${blank ? '' : ' style="display:none"'}>${esc(t('fbEmpty'))}</p>
+  </div>`;
+};
+
 VIEWS.budaya = () => {
   const g = GMAP[S.arg]; if (!g) return `<div class="empty"><p>${esc(t('notFound'))}</p><button class="btn" data-a="go" data-v="belajar">${esc(t('back'))}</button></div>`;
   const sc = SCALES[g.sc];
@@ -2459,7 +2497,7 @@ function chrome() {
   const themeLabel = t(dark ? 'lightMode' : 'darkMode');
   document.getElementById('btnTheme').setAttribute('aria-label', themeLabel);
   document.getElementById('btnTheme').setAttribute('title', themeLabel);
-  const navMap = { gaya: 'gaya', ide: 'gaya', lirik: 'lirik', musik: 'musik', mixer: 'mixer', ekspor: 'ekspor' };
+  const navMap = { gaya: 'gaya', ide: 'gaya', lirik: 'lirik', musik: 'musik', mixer: 'mixer', ekspor: 'ekspor', masukan: 'masukan' };
   document.querySelectorAll('nav.bnav [data-nav]').forEach(b => { const on = navMap[S.view] === b.dataset.nav; b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   document.getElementById('player').style.display = S.proj ? '' : 'none';
   document.getElementById('pbpm').textContent = S.proj ? S.proj.bpm + ' BPM' : '';
@@ -2730,6 +2768,22 @@ function importFile(f) {
 // ---- actions
 const ACT = {
   go: el => go(el.dataset.v),
+  fbKat: el => { S.fb.kat = FB_KATS.includes(el.dataset.v) ? el.dataset.v : 'saran'; render(); },
+  fbSend: async () => {
+    if (S.fb.state === 'sending' || !S.fb.msg.trim()) return;
+    S.fb.state = 'sending'; render();
+    try {
+      const r = await apiFetch('/api/feedback', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ kategori: S.fb.kat, pesan: S.fb.msg }),
+      });
+      if (r.status === 401) S.fb.state = 'expired';
+      else if (r.ok) { S.fb.state = 'sent'; S.fb.msg = ''; }
+      else S.fb.state = 'failed';
+    } catch (e) { S.fb.state = 'failed'; }
+    render();
+  },
+  fbAgain: () => { S.fb = { kat: 'saran', msg: '', state: 'idle' }; render(); },
   learnJump: el => { const s = document.querySelector('[data-learn="' + el.dataset.v + '"]'); if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' }); },
   back: () => history.length > 1 ? history.back() : go('belajar'),
   lang: el => { const v = el.dataset.v === 'en' ? 'en' : 'id'; if (v === S.lang) return; S.lang = v; try { localStorage.setItem('md.lang', S.lang); } catch (e) {} render(); },
@@ -2867,6 +2921,15 @@ function field(el, ev) {
   const outEl = el.parentElement && el.parentElement.querySelector('output');
   const live = (fn) => { if (!p) return; fn(p); touched({ render: false }); };
   if (f === 'q') { S.q = val; document.getElementById('genreGrid').innerHTML = genreCards(); return; }
+  // The feedback screen has no project. Update in place (no render) so the
+  // caret in the textarea stays where the person put it.
+  if (f === 'fbMsg') {
+    S.fb.msg = String(val).slice(0, 2000);
+    const c = document.getElementById('fbCount'); if (c) c.textContent = S.fb.msg.length + '/2000';
+    const b = document.getElementById('fbSend'); if (b) b.disabled = !S.fb.msg.trim() || S.fb.state === 'sending';
+    const h = document.getElementById('fbHint'); if (h) h.style.display = S.fb.msg.trim() ? 'none' : '';
+    return;
+  }
   if (!p && !['snap'].includes(f)) return;
   switch (f) {
     case 'title': return live(pp => { pp.title = val; if (!pp.nameEdited) { pp.name = val || t('untitled'); document.getElementById('projName').textContent = pp.name; } });
