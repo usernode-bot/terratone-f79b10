@@ -251,6 +251,7 @@
     nav.bnav button span { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     nav.bnav button svg { width:22px; height:22px; }
     nav.bnav button.on { color:var(--acc); }
+    @media (max-width:399px) { nav.bnav button { font-size:10px; } }
     #toast { position:fixed; left:50%; bottom:calc(132px + var(--safe-b)); transform:translateX(-50%); z-index:90; background:#231b15; color:#f6eee6; padding:10px 16px; border-radius:999px; font-size:14px; display:none; max-width:90vw; text-align:center; box-shadow:0 6px 24px rgba(0,0,0,.3); }
     .overlay { position:fixed; inset:0; z-index:95; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; }
     .overlay.on { display:flex; }
@@ -2575,13 +2576,19 @@ async function confirmAsk(title, message, okLabel) {
 
 // ---- routing (hash)
 function go(v) { if (location.hash !== '#' + v) location.hash = v; else route(); }
-function route() {
-  stopCardPreview();
+// The hash decides the view on load and on every hashchange, whether or not a
+// project is open (#masukan must render without one).
+function hashRoute() {
   // A link may carry a query after the hash (#masukan?demo=1); it is not part
   // of the view name.
   const h = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('?')[0];
   const [v, arg] = h.split('/');
-  S.view = VIEWS[v] ? v : 'proyek'; S.arg = arg || null;
+  return { v, arg: arg || null };
+}
+function route() {
+  stopCardPreview();
+  const { v, arg } = hashRoute();
+  S.view = VIEWS[v] ? v : 'proyek'; S.arg = arg;
   if (['lirik', 'musik', 'mixer', 'ekspor'].includes(S.view) && S.proj && !S.proj.tracks[3].notes.length && !Object.keys(S.proj.patterns.A).length) { regenAll(S.proj); saveSoon(); }
   S.keepScroll = false; hideTip();
   render(); window.scrollTo(0, 0);
@@ -3016,6 +3023,7 @@ function bindEvents() {
   document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.f) field(e.target, 'change'); });
   document.getElementById('fileImport').addEventListener('change', e => { const f = e.target.files[0]; if (f) importFile(f); e.target.value = ''; });
   window.addEventListener('hashchange', route);
+  window.addEventListener('pageshow', route);
   window.addEventListener('resize', () => { if (S.view === 'musik' && S.tab === 'roll') drawRoll(); drawViz(!P.playing); });
   window.addEventListener('usernode:theme-changed', () => setTimeout(render, 0));
   window.addEventListener('usernode:visibility-changed', e => { if (e.detail && e.detail.hidden) { stopCardPreview(); if (P.playing) transportPause(); } });
@@ -3023,6 +3031,9 @@ function bindEvents() {
 }
 
 function init() {
+  // Apply the hash before anything else, so a deep link such as #masukan
+  // renders its own view on load and does not need a project.
+  S.view = VIEWS[hashRoute().v] ? hashRoute().v : 'proyek';
   loadStore();
   const missing = [];
   if (!AC) missing.push(t('noAudio'));
