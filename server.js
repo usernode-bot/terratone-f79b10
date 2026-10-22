@@ -183,6 +183,30 @@ app.post('/api/lyrics', async (req, res) => {
   }
 });
 
+// ---- Feedback (messages to the app's maker) --------------------------------
+// One private table: each row is a personal message tied to a person, and no
+// screen in the app reads it back.
+const FB_KATEGORI = ['saran', 'masalah', 'pujian', 'lainnya'];
+
+app.post('/api/feedback', async (req, res) => {
+  const b = req.body || {};
+  const kategori = String(b.kategori || '');
+  const pesan = String(b.pesan == null ? '' : b.pesan).trim();
+  if (!FB_KATEGORI.includes(kategori)) return res.status(400).json({ code: 'bad_category' });
+  if (!pesan) return res.status(400).json({ code: 'empty' });
+  if (pesan.length > 2000) return res.status(400).json({ code: 'too_long' });
+  try {
+    await pool.query(
+      'INSERT INTO feedback (user_id, username, kategori, pesan) VALUES ($1, $2, $3, $4)',
+      [String(req.user.id), clip(req.user.username, 80), kategori, pesan]
+    );
+    res.status(201).json({ ok: true });
+  } catch (err) {
+    console.warn('feedback save failed: ' + err.message);
+    res.status(500).json({ code: 'save_failed' });
+  }
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // HTML shell: serve the app if authenticated. Unauthenticated top-level
@@ -244,9 +268,31 @@ async function shutdown(signal) {
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
-// Musik Dunia keeps projects in the browser (no tables yet), so there is no
-// schema to apply on boot.
-function start() {
+// Musik Dunia keeps projects in the browser. The only table is `feedback`,
+// which holds messages to the app's maker; it is private, so staging gets the
+// schema without anybody's rows.
+async function applySchema() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS feedback (
+        id         SERIAL PRIMARY KEY,
+        user_id    TEXT NOT NULL,
+        username   TEXT NOT NULL DEFAULT '',
+        kategori   TEXT NOT NULL,
+        pesan      TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+      COMMENT ON TABLE feedback IS 'staging:private';
+    `);
+  } catch (err) {
+    // A missing DATABASE_URL (a plain local `node server.js`) must not stop
+    // the music maker; the feedback endpoint answers 500 instead.
+    console.warn('schema apply failed: ' + err.message);
+  }
+}
+
+async function start() {
+  await applySchema();
   server = app.listen(port, () => console.log(`Listening on :${port}`));
   // Let Envoy retire idle upstream connections at 60s, with a 15s margin.
   server.keepAliveTimeout = 75_000;

@@ -84,6 +84,8 @@ Indonesian first with an English toggle. (The repo was scaffolded as
   example uses, a short cultural note, and must show "Variasi antardaerah
   banyak, periksa dengan pelaku budaya setempat." Avoid uncertain claims and
   stereotypes; say "pendekatan" where a sound is only approximated.
-- Projects are stored in the browser (`localStorage`); there are no tables.
+- Projects are stored in the browser (`localStorage`). The one table is
+  `feedback` (`staging:private`), holding messages to the app's maker sent from
+  the Masukan tab; nothing in the app reads it back.
 - AI lyrics go through `POST /api/lyrics` (platform LLM proxy). Staging has no
   proxy, so the frontend falls back to the template generator.

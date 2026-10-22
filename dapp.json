@@ -47,6 +47,15 @@
       "expectText": "Tentang budaya"
     },
     {
+      "id": "feedback.form",
+      "name": "Layar Masukan menampilkan formulir kirim pesan",
+      "path": "/#masukan",
+      "expectSelector": "#feedbackForm textarea[data-f=\"fbMsg\"]",
+      "expectText": "Kirim masukan",
+      "visual": true,
+      "impact": ["public/index.html"]
+    },
+    {
       "name": "Halaman Tentang Budaya Bugis & Makassar",
       "path": "/#budaya/bugis",
       "expectText": "Variasi antardaerah banyak, periksa dengan pelaku budaya setempat."
