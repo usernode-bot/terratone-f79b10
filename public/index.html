@@ -591,27 +591,27 @@ const DRUMS = {
 // didge (didgeridoo drone). All share ADSR, filter and vibrato controls.
 // `aprx:true` marks a traditional instrument we can only approximate.
 const INSTR = {
-  piano:   { n:['Piano','Piano'], g:'keys', e:'add', p:[[1,1,1],[2,.45,.7],[3,.22,.5],[4,.12,.4],[5,.06,.3]], a:.004, d:1.6, s:.0, r:.4, cut:9000, q:.7, vr:0, vd:0 },
-  epiano:  { n:['Piano elektrik','Electric piano'], g:'keys', e:'fm', ratio:1, index:2.2, idec:.6, a:.004, d:1.8, s:.15, r:.5, cut:7000, q:.7, vr:4.5, vd:3 },
+  piano:   { n:['Piano','Piano'], g:'keys', e:'add', p:[[1,1,1],[2,.45,.7],[3,.22,.5],[4,.12,.4],[5,.06,.3]], a:.006, d:1.6, s:.0, r:.4, cut:7000, q:.7, vr:0, vd:0 },
+  epiano:  { n:['Piano elektrik','Electric piano'], g:'keys', e:'fm', ratio:1, index:1.8, idec:.6, a:.004, d:1.8, s:.15, r:.5, cut:7000, q:.7, vr:4.5, vd:3 },
   organ:   { n:['Organ','Organ'], g:'keys', e:'add', sus:true, p:[[.5,.5,1],[1,1,1],[2,.6,1],[3,.35,1],[4,.25,1]], a:.01, d:.1, s:.9, r:.12, cut:6000, q:.7, vr:6, vd:6 },
-  accordion:{ n:['Akordeon','Accordion'], g:'keys', e:'sub', wave:'sawtooth', det:[-9,9], a:.03, d:.2, s:.85, r:.12, cut:2600, q:1.2, vr:5, vd:4 },
-  lead:    { n:['Synth lead','Synth lead'], g:'synth', e:'sub', wave:'sawtooth', det:[-6,6], a:.01, d:.25, s:.65, r:.2, cut:3200, q:3, fenv:2, vr:5.5, vd:12 },
-  pad:     { n:['Synth pad','Synth pad'], g:'synth', e:'sub', wave:'sawtooth', det:[-14,0,14], a:.5, d:.8, s:.75, r:1.2, cut:1700, q:.8, vr:.4, vd:6 },
-  bell:    { n:['Bel','Bell'], g:'synth', e:'fm', ratio:3.5, index:3, idec:1.2, a:.002, d:2.4, s:0, r:1.2, cut:12000, q:.5, vr:0, vd:0 },
-  choirA:  { n:['Vokal "aah"','Voice "aah"'], g:'voice', e:'formant', vowel:'a', wave:'sawtooth', a:.18, d:.4, s:.8, r:.5, cut:5000, q:.7, vr:5, vd:14 },
-  choirO:  { n:['Vokal "ooh"','Voice "ooh"'], g:'voice', e:'formant', vowel:'o', wave:'sawtooth', a:.2, d:.4, s:.8, r:.5, cut:3500, q:.7, vr:5, vd:12 },
+  accordion:{ n:['Akordeon','Accordion'], g:'keys', e:'sub', wave:'sawtooth', det:[-6,6], a:.03, d:.2, s:.85, r:.12, cut:2200, q:.9, vr:5, vd:4 },
+  lead:    { n:['Synth lead','Synth lead'], g:'synth', e:'sub', wave:'sawtooth', det:[-4,4], a:.03, d:.25, s:.65, r:.2, cut:2400, q:1.2, fenv:1.2, vr:5.5, vd:12 },
+  pad:     { n:['Synth pad','Synth pad'], g:'synth', e:'sub', wave:'sawtooth', det:[-9,0,9], a:.5, d:.8, s:.75, r:1.2, cut:1400, q:.8, vr:.4, vd:6 },
+  bell:    { n:['Bel','Bell'], g:'synth', e:'fm', ratio:3.5, index:2.4, idec:1.2, a:.004, d:2.4, s:0, r:1.2, cut:8000, q:.5, vr:0, vd:0 },
+  choirA:  { n:['Vokal "aah"','Voice "aah"'], g:'voice', e:'formant', vowel:'a', wave:'sawtooth', a:.18, d:.4, s:.8, r:.5, cut:4000, q:.7, vr:5, vd:14 },
+  choirO:  { n:['Vokal "ooh"','Voice "ooh"'], g:'voice', e:'formant', vowel:'o', wave:'sawtooth', a:.2, d:.4, s:.8, r:.5, cut:3000, q:.7, vr:5, vd:12 },
   bassSub: { n:['Bass sub','Sub bass'], g:'bass', e:'sub', wave:'sine', det:[0], a:.006, d:.3, s:.8, r:.15, cut:900, q:.7, vr:0, vd:0 },
-  bassPluck:{ n:['Bass pluck','Pluck bass'], g:'bass', e:'sub', wave:'sawtooth', det:[0], a:.003, d:.28, s:.25, r:.12, cut:900, q:4, fenv:3, vr:0, vd:0 },
+  bassPluck:{ n:['Bass pluck','Pluck bass'], g:'bass', e:'sub', wave:'sawtooth', det:[0], a:.006, d:.28, s:.25, r:.12, cut:900, q:2, fenv:2, vr:0, vd:0 },
   bassFretless:{ n:['Bass fretless','Fretless bass'], g:'bass', e:'sub', wave:'triangle', det:[0], a:.02, d:.6, s:.6, r:.2, cut:1400, q:1, vr:4, vd:9, bend:-40 },
   bassUpright:{ n:['Kontrabas petik','Upright bass'], g:'bass', e:'ks', bright:.35, damp:.995, body:900, a:.003, d:1.2, s:.0, r:.2, cut:1800, q:.7, vr:0, vd:0 },
   bassReggae:{ n:['Bass reggae berat','Heavy reggae bass'], g:'bass', e:'sub', wave:'sine', det:[0,1200], mix:[1,.18], a:.01, d:.4, s:.85, r:.12, cut:500, q:1, vr:0, vd:0 },
   guitar:  { n:['Gitar (Karplus-Strong)','Guitar (Karplus-Strong)'], g:'string', e:'ks', bright:.55, damp:.996, body:4200, a:.002, d:2.2, s:0, r:.3, cut:6000, q:.7, vr:0, vd:0 },
   nylon:   { n:['Gitar nilon','Nylon guitar'], g:'string', e:'ks', bright:.35, damp:.995, body:2600, a:.003, d:2, s:0, r:.3, cut:4000, q:.7, vr:0, vd:0 },
-  eguitar: { n:['Gitar listrik','Electric guitar'], g:'string', e:'ks', bright:.75, damp:.998, body:5000, drive:.5, a:.002, d:2.5, s:.2, r:.2, cut:4500, q:1, vr:0, vd:0 },
-  strings: { n:['String','Strings'], g:'string', e:'sub', wave:'sawtooth', det:[-8,0,8], a:.35, d:.5, s:.85, r:.7, cut:2600, q:.8, vr:5, vd:8 },
-  violin:  { n:['Biola','Violin'], g:'string', e:'sub', wave:'sawtooth', det:[0,4], a:.08, d:.3, s:.85, r:.3, cut:3800, q:2, vr:5.8, vd:16 },
-  cello:   { n:['Selo','Cello'], g:'string', e:'sub', wave:'sawtooth', det:[0,3], a:.1, d:.4, s:.8, r:.35, cut:1600, q:2, vr:5, vd:12 },
-  brass:   { n:['Brass','Brass'], g:'wind', e:'sub', wave:'sawtooth', det:[-4,4], a:.05, d:.25, s:.7, r:.18, cut:1600, q:2.2, fenv:2.5, vr:5, vd:6 },
+  eguitar: { n:['Gitar listrik','Electric guitar'], g:'string', e:'ks', bright:.65, damp:.998, body:5000, drive:.32, a:.002, d:2.5, s:.2, r:.2, cut:4500, q:1, vr:0, vd:0 },
+  strings: { n:['String','Strings'], g:'string', e:'sub', wave:'sawtooth', det:[-6,0,6], a:.35, d:.5, s:.85, r:.7, cut:2200, q:.8, vr:5, vd:8 },
+  violin:  { n:['Biola','Violin'], g:'string', e:'sub', wave:'sawtooth', det:[0,4], a:.1, d:.3, s:.85, r:.3, cut:3000, q:1.2, vr:5.8, vd:16 },
+  cello:   { n:['Selo','Cello'], g:'string', e:'sub', wave:'sawtooth', det:[0,3], a:.1, d:.4, s:.8, r:.35, cut:1400, q:1.2, vr:5, vd:12 },
+  brass:   { n:['Brass','Brass'], g:'wind', e:'sub', wave:'sawtooth', det:[-4,4], a:.06, d:.25, s:.7, r:.18, cut:1400, q:1.4, fenv:1.8, vr:5, vd:6 },
   clarinet:{ n:['Klarinet','Clarinet'], g:'wind', e:'wind', wave:'square', noise:.04, bp:1, a:.04, d:.2, s:.8, r:.15, cut:2600, q:1, vr:5, vd:10 },
   suling:  { n:['Suling','Suling'], g:'wind', e:'wind', wave:'sine', noise:.16, bp:2, a:.06, d:.3, s:.75, r:.2, cut:6000, q:.7, vr:5.5, vd:18, aprx:true, bend:-60 },
   bamboo:  { n:['Seruling bambu','Bamboo flute'], g:'wind', e:'wind', wave:'triangle', noise:.12, bp:2, a:.05, d:.3, s:.75, r:.2, cut:5000, q:.7, vr:5, vd:14, aprx:true },
@@ -621,38 +621,38 @@ const INSTR = {
   whistle: { n:['Tin whistle','Tin whistle'], g:'wind', e:'wind', wave:'triangle', noise:.08, bp:2.5, a:.02, d:.2, s:.8, r:.1, cut:8000, q:.7, vr:6, vd:10, aprx:true },
   saluang: { n:['Saluang','Saluang'], g:'wind', e:'wind', wave:'sine', noise:.4, bp:1.4, a:.1, d:.4, s:.7, r:.35, cut:3500, q:.7, vr:4.5, vd:24, aprx:true, bend:-70 },
   natflute:{ n:['Seruling Pribumi (pendekatan)','Native flute (approx.)'], g:'wind', e:'wind', wave:'sine', noise:.22, bp:1.6, a:.1, d:.4, s:.75, r:.4, cut:4000, q:.7, vr:4, vd:16, aprx:true },
-  reed:    { n:['Pui-pui / sarune (tiup lidah)','Pui-pui / sarune (reed)'], g:'wind', e:'wind', wave:'sawtooth', noise:.05, bp:3, a:.03, d:.2, s:.85, r:.12, cut:3000, q:3, vr:6, vd:20, aprx:true },
-  shehnai: { n:['Shehnai (pendekatan)','Shehnai (approx.)'], g:'wind', e:'wind', wave:'square', noise:.05, bp:3.5, a:.04, d:.2, s:.85, r:.15, cut:3200, q:3, vr:6, vd:22, aprx:true, bend:-50 },
-  erhu:    { n:['Erhu','Erhu'], g:'string', e:'sub', wave:'sawtooth', det:[0], a:.09, d:.3, s:.85, r:.25, cut:3000, q:3.5, vr:5.5, vd:25, aprx:true, bend:-80 },
+  reed:    { n:['Pui-pui / sarune (tiup lidah)','Pui-pui / sarune (reed)'], g:'wind', e:'wind', wave:'sawtooth', noise:.05, bp:3, a:.03, d:.2, s:.85, r:.12, cut:3000, q:1.8, vr:6, vd:20, aprx:true },
+  shehnai: { n:['Shehnai (pendekatan)','Shehnai (approx.)'], g:'wind', e:'wind', wave:'square', noise:.05, bp:3.5, a:.04, d:.2, s:.85, r:.15, cut:3200, q:1.8, vr:6, vd:22, aprx:true, bend:-50 },
+  erhu:    { n:['Erhu','Erhu'], g:'string', e:'sub', wave:'sawtooth', det:[0], a:.09, d:.3, s:.85, r:.25, cut:2600, q:2, vr:5.5, vd:25, aprx:true, bend:-80 },
   danbau:  { n:['Đàn bầu','Đàn bầu'], g:'string', e:'sub', wave:'triangle', det:[0], a:.01, d:1.4, s:.3, r:.4, cut:3000, q:1, vr:5, vd:30, aprx:true, bend:-150 },
-  sitar:   { n:['Sitar','Sitar'], g:'string', e:'ks', bright:.8, damp:.998, buzz:.55, body:5000, a:.002, d:3, s:0, r:.5, cut:7000, q:1, vr:0, vd:0, aprx:true },
-  tanpura: { n:['Tanpura (dengung)','Tanpura (drone)'], g:'string', e:'ks', bright:.6, damp:.9992, buzz:.7, body:4000, a:.002, d:4, s:.3, r:1.2, cut:5000, q:.7, vr:0, vd:0, aprx:true },
+  sitar:   { n:['Sitar','Sitar'], g:'string', e:'ks', bright:.8, damp:.998, buzz:.45, body:5000, a:.002, d:3, s:0, r:.5, cut:7000, q:1, vr:0, vd:0, aprx:true },
+  tanpura: { n:['Tanpura (dengung)','Tanpura (drone)'], g:'string', e:'ks', bright:.6, damp:.9992, buzz:.55, body:4000, a:.002, d:4, s:.3, r:1.2, cut:5000, q:.7, vr:0, vd:0, aprx:true },
   oud:     { n:['Oud / gambus','Oud / gambus'], g:'string', e:'ks', bright:.42, damp:.994, body:2200, a:.002, d:1.6, s:0, r:.3, cut:3500, q:1, vr:0, vd:0, aprx:true },
   kecapi:  { n:['Kecapi','Kecapi'], g:'string', e:'ks', bright:.6, damp:.996, body:4500, a:.002, d:2.2, s:0, r:.4, cut:6000, q:.7, vr:0, vd:0, aprx:true },
   koto:    { n:['Koto','Koto'], g:'string', e:'ks', bright:.65, damp:.997, body:5000, a:.002, d:2.5, s:0, r:.5, cut:6500, q:.7, vr:0, vd:0, aprx:true, bend:-30 },
   guzheng: { n:['Guzheng','Guzheng'], g:'string', e:'ks', bright:.7, damp:.997, body:5500, a:.002, d:2.6, s:0, r:.5, cut:7000, q:.7, vr:5, vd:6, aprx:true },
   gayageum:{ n:['Gayageum','Gayageum'], g:'string', e:'ks', bright:.5, damp:.996, body:3500, a:.002, d:2.2, s:0, r:.4, cut:5000, q:.7, vr:4.5, vd:14, aprx:true },
   kora:    { n:['Kora','Kora'], g:'string', e:'ks', bright:.6, damp:.9965, body:4800, a:.002, d:2, s:0, r:.4, cut:6500, q:.7, vr:0, vd:0, aprx:true },
-  charango:{ n:['Charango','Charango'], g:'string', e:'ks', bright:.85, damp:.994, body:6000, a:.002, d:1.2, s:0, r:.2, cut:8000, q:.7, vr:0, vd:0, aprx:true },
+  charango:{ n:['Charango','Charango'], g:'string', e:'ks', bright:.75, damp:.994, body:6000, a:.002, d:1.2, s:0, r:.2, cut:8000, q:.7, vr:0, vd:0, aprx:true },
   ukulele: { n:['Ukulele','Ukulele'], g:'string', e:'ks', bright:.6, damp:.993, body:4500, a:.002, d:1.1, s:0, r:.2, cut:6000, q:.7, vr:0, vd:0 },
   cak:     { n:['Cak / cuk keroncong','Cak / cuk (keroncong)'], g:'string', e:'ks', bright:.75, damp:.99, body:5000, a:.002, d:.6, s:0, r:.15, cut:6500, q:.7, vr:0, vd:0, aprx:true },
-  banjo:   { n:['Banjo','Banjo'], g:'string', e:'ks', bright:.95, damp:.992, body:6500, a:.001, d:1, s:0, r:.15, cut:8000, q:1.5, vr:0, vd:0 },
+  banjo:   { n:['Banjo','Banjo'], g:'string', e:'ks', bright:.85, damp:.992, body:6500, a:.001, d:1, s:0, r:.15, cut:8000, q:1, vr:0, vd:0 },
   bouzouki:{ n:['Bouzouki','Bouzouki'], g:'string', e:'ks', bright:.8, damp:.996, body:5500, a:.002, d:1.8, s:0, r:.3, cut:7000, q:.8, vr:0, vd:0, aprx:true },
   dutar:   { n:['Dutar','Dutar'], g:'string', e:'ks', bright:.5, damp:.996, body:3500, buzz:.15, a:.002, d:2, s:0, r:.3, cut:4500, q:.7, vr:0, vd:0, aprx:true },
   guembri: { n:['Guembri (bas petik)','Guembri (bass lute)'], g:'bass', e:'ks', bright:.3, damp:.994, buzz:.35, body:1200, a:.003, d:1.2, s:0, r:.2, cut:1800, q:1, vr:0, vd:0, aprx:true },
   dantranh:{ n:['Đàn tranh','Đàn tranh'], g:'string', e:'ks', bright:.65, damp:.997, body:5000, a:.002, d:2.4, s:0, r:.5, cut:6500, q:.7, vr:5, vd:10, aprx:true },
-  marimba: { n:['Marimba','Marimba'], g:'mallet', e:'add', p:[[1,1,1],[4,.35,.25],[9.9,.12,.12]], a:.002, d:.9, s:0, r:.25, cut:8000, q:.7, vr:0, vd:0 },
-  balafon: { n:['Balafon','Balafon'], g:'mallet', e:'add', p:[[1,1,1],[3.9,.4,.3],[9.2,.15,.15]], buzz:.25, a:.002, d:.7, s:0, r:.2, cut:7000, q:.7, vr:0, vd:0, aprx:true },
-  saron:   { n:['Saron','Saron'], g:'mallet', e:'add', p:[[1,1,1],[2.76,.3,.6],[5.4,.12,.3]], a:.002, d:1.3, s:0, r:.6, cut:8000, q:.7, vr:0, vd:0, aprx:true },
-  gender:  { n:['Gendèr','Gendèr'], g:'mallet', e:'add', p:[[1,1,1],[2.9,.2,.5],[6.1,.08,.3]], a:.003, d:2.6, s:0, r:1, cut:7000, q:.7, vr:0, vd:0, aprx:true },
-  gangsa:  { n:['Gangsa Bali (ombak)','Balinese gangsa (ombak)'], g:'mallet', e:'add', p:[[1,1,1],[2.7,.35,.5],[5.2,.15,.3]], beat:6, a:.002, d:1.4, s:0, r:.5, cut:9000, q:.7, vr:0, vd:0, aprx:true },
-  bonang:  { n:['Bonang','Bonang'], g:'mallet', e:'add', p:[[1,1,1],[2.01,.25,.6],[3.0,.12,.4]], beat:1.2, a:.002, d:1.6, s:0, r:.6, cut:6000, q:.7, vr:0, vd:0, aprx:true },
-  talempong:{ n:['Talempong','Talempong'], g:'mallet', e:'add', p:[[1,1,1],[2.04,.3,.6],[3.1,.12,.4]], beat:1.5, a:.002, d:1.4, s:0, r:.5, cut:6500, q:.7, vr:0, vd:0, aprx:true },
+  marimba: { n:['Marimba','Marimba'], g:'mallet', e:'add', p:[[1,1,1],[4,.35,.25],[9.9,.12,.12]], a:.004, d:.9, s:0, r:.25, cut:8000, q:.7, vr:0, vd:0 },
+  balafon: { n:['Balafon','Balafon'], g:'mallet', e:'add', p:[[1,1,1],[3.9,.4,.3],[9.2,.15,.15]], buzz:.25, a:.004, d:.7, s:0, r:.2, cut:7000, q:.7, vr:0, vd:0, aprx:true },
+  saron:   { n:['Saron','Saron'], g:'mallet', e:'add', p:[[1,1,1],[2.76,.3,.6],[5.4,.12,.3]], a:.004, d:1.3, s:0, r:.6, cut:8000, q:.7, vr:0, vd:0, aprx:true },
+  gender:  { n:['Gendèr','Gendèr'], g:'mallet', e:'add', p:[[1,1,1],[2.9,.2,.5],[6.1,.08,.3]], a:.004, d:2.6, s:0, r:1, cut:7000, q:.7, vr:0, vd:0, aprx:true },
+  gangsa:  { n:['Gangsa Bali (ombak)','Balinese gangsa (ombak)'], g:'mallet', e:'add', p:[[1,1,1],[2.7,.35,.5],[5.2,.15,.3]], beat:6, a:.004, d:1.4, s:0, r:.5, cut:9000, q:.7, vr:0, vd:0, aprx:true },
+  bonang:  { n:['Bonang','Bonang'], g:'mallet', e:'add', p:[[1,1,1],[2.01,.25,.6],[3.0,.12,.4]], beat:1.2, a:.004, d:1.6, s:0, r:.6, cut:6000, q:.7, vr:0, vd:0, aprx:true },
+  talempong:{ n:['Talempong','Talempong'], g:'mallet', e:'add', p:[[1,1,1],[2.04,.3,.6],[3.1,.12,.4]], beat:1.5, a:.004, d:1.4, s:0, r:.5, cut:6500, q:.7, vr:0, vd:0, aprx:true },
   slenthem:{ n:['Slenthem (metal rendah)','Slenthem (low metal)'], g:'bass', e:'add', p:[[1,1,1],[2.76,.18,.5]], beat:.8, a:.004, d:2.5, s:0, r:1, cut:3000, q:.7, vr:0, vd:0, aprx:true },
   angklung:{ n:['Angklung','Angklung'], g:'mallet', e:'add', p:[[1,1,1],[2,.5,.8],[3,.18,.5]], trem:13, a:.01, d:.5, s:.7, r:.12, cut:6000, q:.7, vr:0, vd:0, aprx:true },
-  steelpan:{ n:['Steel drum','Steel pan'], g:'mallet', e:'add', p:[[1,1,1],[2,.5,.7],[3,.25,.4],[4.02,.12,.3]], a:.002, d:1.1, s:0, r:.3, cut:7000, q:.7, vr:0, vd:0 },
-  kalimba: { n:['Kalimba / mbira','Kalimba / mbira'], g:'mallet', e:'add', p:[[1,1,1],[5.4,.25,.2],[13,.08,.1]], buzz:.12, a:.002, d:1.2, s:0, r:.3, cut:8000, q:.7, vr:0, vd:0, aprx:true },
-  ranat:   { n:['Ranat ek','Ranat ek'], g:'mallet', e:'add', p:[[1,1,1],[3.9,.3,.25],[8.6,.1,.12]], a:.002, d:.6, s:0, r:.2, cut:8000, q:.7, vr:0, vd:0, aprx:true },
+  steelpan:{ n:['Steel drum','Steel pan'], g:'mallet', e:'add', p:[[1,1,1],[2,.5,.7],[3,.25,.4],[4.02,.12,.3]], a:.004, d:1.1, s:0, r:.3, cut:7000, q:.7, vr:0, vd:0 },
+  kalimba: { n:['Kalimba / mbira','Kalimba / mbira'], g:'mallet', e:'add', p:[[1,1,1],[5.4,.25,.2],[13,.08,.1]], buzz:.12, a:.004, d:1.2, s:0, r:.3, cut:8000, q:.7, vr:0, vd:0, aprx:true },
+  ranat:   { n:['Ranat ek','Ranat ek'], g:'mallet', e:'add', p:[[1,1,1],[3.9,.3,.25],[8.6,.1,.12]], a:.004, d:.6, s:0, r:.2, cut:8000, q:.7, vr:0, vd:0, aprx:true },
   didgeridoo:{ n:['Didgeridoo (pendekatan)','Didgeridoo (approx.)'], g:'wind', e:'didge', a:.08, d:.3, s:.9, r:.3, cut:2200, q:.7, vr:.25, vd:5, aprx:true },
   steelgtr:{ n:['Gitar steel Hawaii','Hawaiian steel guitar'], g:'string', e:'sub', wave:'triangle', det:[0,1200], mix:[1,.2], a:.01, d:1.5, s:.35, r:.6, cut:3500, q:1, vr:5.5, vd:14, bend:-120 },
 };
@@ -1207,7 +1207,7 @@ function generate(p, parts, mode) {
   const pcs = (SCALES[p.scale] || SCALES.major).pcs;
   const chords = p.progression.map(c => parseChord(c, p.key, pcs));
   const T = id => p.tracks.find(t => t.id === id);
-  const setInst = (tid, inst, src) => { const t = T(tid); if (t && inst && INSTR[inst]) { t.inst = instDefaults(inst); t.mixer.reverb = (src.fx && src.fx.rv) || .2; t.mixer.delay = (src.fx && src.fx.dl) || 0; } };
+  const setInst = (tid, inst, src) => { const t = T(tid); if (t && inst && INSTR[inst]) { t.inst = instDefaults(inst); t.mixer.reverb = (src.fx && src.fx.rv) || .25; t.mixer.delay = (src.fx && src.fx.dl) || 0; } };
   if (parts.includes('drums')) {
     const rowsA = drumRowsFor(mix, spb, 'A');
     const rowsB = (mix.A.drB || (mix.B && mix.B.drB)) ? drumRowsFor(mix, spb, 'B') : autoFill(rowsA, spb, rng);
@@ -1302,7 +1302,9 @@ function buildGraph(ctx, p) {
   g.master = ctx.createGain();
   g.limiter = ctx.createDynamicsCompressor();
   g.analyser = ctx.createAnalyser(); g.analyser.fftSize = 2048;
-  g.master.connect(g.limiter); g.limiter.connect(g.analyser); g.analyser.connect(ctx.destination);
+  g.tone = ctx.createBiquadFilter(); g.tone.type = 'highshelf';
+  g.tone.frequency.value = 4500; g.tone.gain.value = -4;
+  g.master.connect(g.tone); g.tone.connect(g.limiter); g.limiter.connect(g.analyser); g.analyser.connect(ctx.destination);
   g.reverb = ctx.createConvolver(); g.reverb.buffer = impulse(ctx, 2.6, 2.8);
   g.revRet = ctx.createGain(); g.revRet.gain.value = .9; g.reverb.connect(g.revRet); g.revRet.connect(g.master);
   g.delay = ctx.createDelay(2); g.dfb = ctx.createGain(); g.dlp = ctx.createBiquadFilter(); g.dlp.frequency.value = 3200;
@@ -1770,7 +1772,7 @@ const L = pair => Array.isArray(pair) ? (S.lang === 'en' ? (pair[1] != null ? pa
 
 function mkTrack(id, kind, name, inst, vol, pan) {
   return { id, kind, name, inst: inst ? instDefaults(inst) : null, notes: [], drumVol: {},
-    mixer: { vol, pan: pan || 0, mute: false, solo: false, reverb: .2, delay: 0, chorus: 0, dist: 0, filter: 1, comp: false } };
+    mixer: { vol, pan: pan || 0, mute: false, solo: false, reverb: .25, delay: 0, chorus: kind === 'drums' ? 0 : .12, dist: 0, filter: 1, comp: false } };
 }
 function newProject(o) {
   o = o || {};
